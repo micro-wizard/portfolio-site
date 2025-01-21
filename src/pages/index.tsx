@@ -5,7 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Heading from '@theme/Heading';
-import { FaGithub, FaGitlab, FaLinkedin } from 'react-icons/fa'; // Import icons
+import { FaGithub, FaGitlab, FaLinkedin, FaFileDownload } from 'react-icons/fa'; // Import icons
 import styles from './index.module.css';
 
 function HomepageHeader() {
@@ -19,9 +19,9 @@ function HomepageHeader() {
           className={styles.heroImage}
         />
         <Heading as="h1" className="hero__title">
-          {"Hi, I'm Nathan Spelts."}
+          Hi, I'm Nathan Spelts.
         </Heading>
-        <p className="hero__subtitle">{"This is my portfolio site."}</p>
+        <p className="hero__subtitle">This is my portfolio site.</p>
         <div className={styles.socialLinks}>
           <a
             href="https://github.com/FashionablyNate"
@@ -46,6 +46,14 @@ function HomepageHeader() {
             aria-label="LinkedIn"
             className={styles.icon}>
             <FaLinkedin />
+          </a>
+          <a
+            href="file/nathanSpeltsResume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Resume"
+            className={styles.icon}>
+            <FaFileDownload />
           </a>
         </div>
       </div>

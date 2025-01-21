@@ -9,7 +9,7 @@
 .featureSvg {
   width: 30%;
   height: auto;
-  fill: var(--ifm-color-secondary);
+  fill: var(--ifm-color-primary-brighter);
 }
 
 .light-mode {
@@ -20,28 +20,27 @@
   display: none;
 }
 
-/* Light mode */
-@media (prefers-color-scheme: light) {
-  .light-mode {
-    display: block;
-  }
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  .dark-mode {
-    display: block;
-  }
-}
-
 strong {
   font-weight: bold;
+}
+
+h1 {
+  color: var(--ifm-color-foreground-brightest)
+}
+
+h2 {
+  color: var(--ifm-color-foreground-brightest)
+}
+
+h4 {
+  color: var(--ifm-color-foreground-brighter)
 }
 
 ul {
   text-align: left; /* Align text to the left */
   padding-left: 20px; /* Add padding for list indentation */
   margin: 10px 0; /* Add spacing around the list */
+  color: var(--ifm-color-foreground-bright)
 }
 
 li {
@@ -49,5 +48,9 @@ li {
 }
 
 hr {
-  background-color: #282828;
+  background-color: var(--ifm-color-foreground);
+}
+
+.hero__subtitle {
+  color: var(--ifm-color-foreground);
 }
