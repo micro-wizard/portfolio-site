@@ -14,7 +14,7 @@ function HomepageHeader() {
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
         <img
-          src="https://github.com/FashionablyNate.png"
+          src="https://github.com/micro-wizard.png"
           alt="Nathan Spelts Profile"
           className={styles.heroImage}
         />
@@ -24,7 +24,7 @@ function HomepageHeader() {
         <p className="hero__subtitle">This is my portfolio site.</p>
         <div className={styles.socialLinks}>
           <a
-            href="https://github.com/FashionablyNate"
+            href="https://github.com/micro-wizard"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
