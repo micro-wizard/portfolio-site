@@ -1,0 +1,15 @@
+{
+    "jobs": [
+        {
+            "company": "Hyster-Yale Materials Handling",
+            "url": "https://www.hyster-yale.com/",
+            "location": "Fairview, OR",
+            "start": "\\DatestampYMD{2023}{8}",
+            "end": "Present",
+            "job_title": "Software Engineer II",
+            "bullet_points": [
+                "Designed, implemented, and maintained embedded C software for forklift microcontrollers, ensuring performance, reliability, and safety in industrial applications."
+            ]
+        }
+    ]
+}
