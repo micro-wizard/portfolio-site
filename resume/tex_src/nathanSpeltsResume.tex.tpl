@@ -17,15 +17,11 @@
 % a4paper, letterpaper, nonstopmode, draftmode
 % MMMyyyy, ddMMMyyyy, MMMMyyyy, ddMMMMyyyy, yyyyMMdd, yyyyMM, yyyy
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% PREAMBLE.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % CV Info (to be customized).
-\newcommand{\CVAuthor}{Nathan Spelts}
-\newcommand{\CVTitle}{Nathan Spelts' CV}
+\newcommand{\CVAuthor}{(((name)))}
+\newcommand{\CVTitle}{(((pdf_title)))}
 \newcommand{\CVNote}{}
-\newcommand{\CVWebpage}{https://nathanspelts.com/}
+\newcommand{\CVWebpage}{(((website)))}
 
 % PDF settings and properties.
 \hypersetup{
@@ -50,15 +46,7 @@ breaklinks}
 \newcommand{\Code}[1]{\mbox{\textbf{\#1}}}
 \newcommand{\CodeCommand}[1]{\mbox{\textbf{\textbackslash{\#1}}}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% ACTUAL DOCUMENT.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \begin{document}
-
-%%%%%%%%%%%%%%%
-% TITLE BLOCK %
-%%%%%%%%%%%%%%%
 
 \Title{\CVAuthor}
 
@@ -66,19 +54,15 @@ breaklinks}
 
 \begin{Body}
 
-\Section
-{Work Experience}
-{Work Experience}
-{PDF:Work Experience}
+(((summary)))
 
 (((work)))
 
-\Section
-{Education}
-{Education}
-{PDF:Education}
-
 (((education)))
+
+(((projects)))
+
+(((skills)))
 
 \end{Body}
 \end{document}
