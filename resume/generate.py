@@ -1,6 +1,23 @@
 from jinja2 import Environment, FileSystemLoader, Template
 import json
 
+
+def date_range_to_string(
+    start_year: str | bool,
+    start_month: str | bool,
+    end_year: str | bool,
+    end_month: str | bool,
+    no_start_preamble: str = "Graduated",
+) -> str:
+    if not start_year and end_year:
+        return f"{no_start_preamble} \\DatestampYMD{{{end_year}}}{{{end_month}}}"
+    if start_year and not end_year:
+        return f"\\DatestampYMD{{{start_year}}}{{{start_month}}} --- Present"
+    if start_year and end_year:
+        return f"\\DatestampYMD{{{start_year}}}{{{start_month}}} --- \\DatestampYMD{{{end_year}}}{{{end_month}}}"
+    return ""
+
+
 env = Environment(
     loader=FileSystemLoader("."),
     block_start_string="((*",
@@ -32,15 +49,36 @@ for job in data["jobs"]:
         company=job["company"],
         url=job["url"],
         location=job["location"],
-        start=job["start"],
-        end=job["end"],
+        dates=date_range_to_string(
+            job["start_year"], job["start_month"], job["end_year"], job["end_month"]
+        ),
         job_title=job["job_title"],
         bullet_points="".join(
             [f"\\SubBulletItem\n{line}\n" for line in job["bullet_points"]]
         ),
     )
 
-education = env.get_template("tex_src/education.tex.tpl").render()
+education = ""
+education_template = env.get_template("tex_src/education.tex.tpl")
+for degree in data["degrees"]:
+    education += education_template.render(
+        school=degree["school"],
+        url=degree["url"],
+        location=degree["location"],
+        dates=date_range_to_string(
+            degree["start_year"],
+            degree["start_month"],
+            degree["end_year"],
+            degree["end_month"],
+        ),
+        degree_name=degree["degree_name"],
+        degree_specialization=f" -- \\textit{{{degree['degree_specialization']}}}"
+        if degree["degree_specialization"]
+        else "",
+        bullet_points="".join(
+            [f"\\SubBulletItem\n{line}\n" for line in degree["bullet_points"]]
+        ),
+    )
 
 with open("tex_src/nathanSpeltsResume.tex", "w") as out:
     out.writelines(

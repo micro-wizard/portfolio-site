@@ -66,7 +66,17 @@ breaklinks}
 
 \begin{Body}
 
+\Section
+{Work Experience}
+{Work Experience}
+{PDF:Work Experience}
+
 (((work)))
+
+\Section
+{Education}
+{Education}
+{PDF:Education}
 
 (((education)))
 
