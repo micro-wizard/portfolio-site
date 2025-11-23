@@ -1,14 +1,9 @@
-\Section
-{Work Experience}
-{Work Experience}
-{PDF:Work Experience}
-
 \Entry
 \href{(((url)))}
 {\textbf{(((company)))}},
 (((location)))
 \hfill
-(((start))) -- (((end)))
+(((dates)))
 
 \Gap
 \BulletItem

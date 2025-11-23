@@ -4,9 +4,54 @@
             "company": "Hyster-Yale Materials Handling",
             "url": "https://www.hyster-yale.com/",
             "location": "Fairview, OR",
-            "start": "\\DatestampYMD{2023}{8}",
-            "end": "Present",
+            "start_month": "8",
+            "start_year": "2023",
+            "end_month": false,
+            "end_year": false,
             "job_title": "Software Engineer II",
+            "bullet_points": [
+                "Designed, implemented, and maintained embedded C software for forklift microcontrollers, ensuring performance, reliability, and safety in industrial applications."
+            ]
+        },
+        {
+            "company": "Seasalt.AI",
+            "url": "https://seasalt.ai",
+            "location": "Remote",
+            "start_month": "7",
+            "start_year": "2022",
+            "end_month": "5",
+            "end_year": "2023",
+            "job_title": "Data Science Intern",
+            "bullet_points": [
+                "Designed, implemented, and maintained embedded C software for forklift microcontrollers, ensuring performance, reliability, and safety in industrial applications."
+            ]
+        }
+    ],
+    "degrees": [
+        {
+            "school": "Georgia Institute of Technology",
+            "url": "https://www.gatech.edu/",
+            "location": "Remote",
+            "start_month": "8",
+            "start_year": "2025",
+            "end_month": false,
+            "end_year": false,
+            "degree_name": "Master of Science in Cybersecurity",
+            "degree_specialization": "Cyber-Physical Systems",
+            "bullet_points": [
+                "Designed, implemented, and maintained embedded C software for forklift microcontrollers, ensuring performance, reliability, and safety in industrial applications."
+            ]
+        },
+        {
+            "school": "Washington State University",
+            "url": "https://wsu.edu/",
+            "location": "Vancouver, WA",
+            "start_month": false,
+            "start_year": false,
+            "end_month": "5",
+            "end_year": "2023",
+            "degree_name": "Bachelor of Science in Computer Science",
+            "degree_specialization": false,
             "bullet_points": [
                 "Designed, implemented, and maintained embedded C software for forklift microcontrollers, ensuring performance, reliability, and safety in industrial applications."
             ]
