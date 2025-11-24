@@ -7,7 +7,7 @@
 }
 
 .featureSvg {
-  width: 30%;
+  width: 10%;
   height: auto;
   fill: var(--ifm-color-primary-brighter);
 }
@@ -20,31 +20,32 @@
   display: none;
 }
 
-strong {
-  font-weight: bold;
-}
-
 h1 {
-  color: var(--ifm-color-foreground-brightest)
+  color: var(--ifm-color-foreground-brightest);
+  font-size: 36px;
 }
 
 h2 {
-  color: var(--ifm-color-foreground-brightest)
+  color: var(--ifm-color-foreground-brightest);
+  font-size: 28px;
 }
 
 h4 {
-  color: var(--ifm-color-foreground-brighter)
+  color: var(--ifm-color-foreground-brighter);
+  font-size: 24px;
 }
 
 ul {
   text-align: left; /* Align text to the left */
   padding-left: 20px; /* Add padding for list indentation */
-  margin: 10px 0; /* Add spacing around the list */
-  color: var(--ifm-color-foreground-bright)
+  margin: 10px; /* Add spacing around the list */
+  margin-bottom: 50px;
+  color: var(--ifm-color-foreground-bright);
 }
 
 li {
   margin-bottom: 5px; /* Add spacing between list items */
+  font-size: 20px;
 }
 
 hr {
