@@ -1,0 +1,10 @@
+\begin{SubTitle}
+(((phone_number)))
+\,\SubBulletSymbol\,
+\href{mailto:(((email)))}
+{(((email)))}
+\,\SubBulletSymbol\,
+{(((location)))}
+\par
+(((links)))
+\end{SubTitle}

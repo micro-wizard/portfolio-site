@@ -1,0 +1,131 @@
+{
+    "name": "Nathan Spelts",
+    "filename": "nathanSpeltsResume",
+    "pdf_title": "Nathan Spelts' CV",
+    "website": "https://nathanspelts.com",
+    "subtitle": {
+        "phone_number": "(425) 408 - 2655",
+        "email": "nathan@spelts.net",
+        "location": "Vancouver, WA",
+        "links": [
+            "nathanspelts.com",
+            "github.com/micro-wizard",
+            "linkedin.com/in/nathanspelts"
+        ]
+    },
+    "summary": "Embedded software engineer specializing in secure firmware, low-level systems, and Rust and C development for cyber-physical systems. Passionate about reliable embedded design, secure boot, and building tools that strengthen the entire development lifecycle.",
+    "jobs_svg": "suitcase.svg",
+    "jobs": [
+        {
+            "company": "Hyster-Yale Materials Handling",
+            "url": "https://www.hyster-yale.com/",
+            "location": "Fairview, OR",
+            "start_month": "8",
+            "start_year": "2023",
+            "end_month": false,
+            "end_year": false,
+            "job_title": "Software Engineer II",
+            "bullet_points": [
+                "Developed embedded C firmware for safety-critical forklift microcontrollers, targeting reliability, deterministic execution, and compliance with industry safety standards.",
+                "Implemented secure boot improvements and contributed to firmware authentication workflows, strengthening protection against tampering and unsafe OTA updates.",
+                "Designed and built a Rust-based CAN logging and analysis tool using C FFI to interface with Vector XL hardware, enabling real-time and offline diagnostic capability.",
+                "Improved internal debugging workflows by creating Python and Rust utilities for log parsing, firmware build artifact automation, and runtime analysis.",
+                "Collaborated with cross-functional electrical, controls, and test engineering teams to deliver robust cyber-physical systems in industrial environments."
+            ]
+        },
+        {
+            "company": "Seasalt.AI",
+            "url": "https://seasalt.ai",
+            "location": "Remote",
+            "start_month": "7",
+            "start_year": "2022",
+            "end_month": "5",
+            "end_year": "2023",
+            "job_title": "Data Science Intern",
+            "bullet_points": [
+                "Improved Spanish and Bahasa Indonesian Kaldi ASR models by over 40\\% WER reduction through acoustic/LM tuning, pipeline optimization, and dataset refinement.",
+                "Automated multilingual data collection and processing using Python and Bash, scraping and cleaning thousands of hours of captioned audio for model training."
+            ]
+        }
+    ],
+    "education_svg": "education.svg",
+    "degrees": [
+        {
+            "school": "Georgia Institute of Technology",
+            "url": "https://www.gatech.edu/",
+            "location": "Remote",
+            "start_month": "8",
+            "start_year": "2025",
+            "end_month": false,
+            "end_year": false,
+            "degree_name": "Master of Science in Cybersecurity",
+            "degree_specialization": "Cyber-Physical Systems",
+            "bullet_points": [
+                "Current GPA: 4.00",
+                "Coursework focuses on embedded and systems security including secure system design, binary exploitation, network security, database security, and applied cryptography.",
+                "Exploring resilience and hardening techniques for embedded Linux, IoT firmware, and cyber-physical systems."
+            ]
+        },
+        {
+            "school": "Washington State University",
+            "url": "https://wsu.edu/",
+            "location": "Vancouver, WA",
+            "start_month": false,
+            "start_year": false,
+            "end_month": "5",
+            "end_year": "2023",
+            "degree_name": "Bachelor of Science in Computer Science",
+            "degree_specialization": false,
+            "bullet_points": [
+                "GPA: 3.9 / 4.00",
+                "Relevant Coursework: Operating Systems, Cryptography, Embedded Systems, Data Structures, Algorithms, Software Engineering, Assembly, Statistics, and Linear Algebra."
+            ]
+        }
+    ],
+    "projects": [
+    ],
+    "skills": [
+        {
+            "name": "Programming Languages",
+            "items": [
+                "Rust",
+                "C",
+                "Python",
+                "C++",
+                "Lua",
+                "Bash",
+                "Powershell",
+                "Kotlin",
+                "Swift",
+                "Javascript",
+                "Java"
+            ]
+        },
+        {
+            "name": "Embedded & Systems",
+            "items": [
+                "Secure Boot",
+                "Bootloaders",
+                "Bare-Metal ARM",
+                "RTOS Concepts",
+                "GPIO / I2C / SPI / UART / CAN",
+                "Memory-Mapped I/O",
+                "Firmware Debugging",
+                "GDB",
+                "QEMU"
+            ]
+        },
+        {
+            "name": "Tools & Technologies",
+            "items": [
+                "Git",
+                "Docker",
+                "Kaldi",
+                "FFI (Rust/C)",
+                "CI/CD Automation",
+                "Linux",
+                "LaTeX"
+            ]
+        }
+    ]
+}
