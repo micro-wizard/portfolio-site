@@ -27,7 +27,7 @@ const FeatureList: FeatureItem[] = [
   <li>
     <strong>Accomplishments:</strong>
     <ul>
-      <li>Developed embedded C firmware for safety-critical forklift microcontrollers, targeting reliability, deterministic execution, and compliance with industry safety standards.</li><li>Implemented secure boot improvements and contributed to firmware authentication workflows, strengthening protection against tampering and unsafe OTA updates.</li><li>Designed and built a Rust-based CAN logging and analysis tool using C FFI to interface with Vector XL hardware, enabling real-time and offline diagnostic capability.</li><li>Improved internal debugging workflows by creating Python and Rust utilities for log parsing, firmware build artifact automation, and runtime analysis.</li><li>Collaborated with cross-functional electrical, controls, and test engineering teams to deliver robust cyber-physical systems in industrial environments.</li>
+      <li>Developed embedded C firmware on ARM microcontrollers for industrial systems, emphasizing deterministic behavior, electrical safety, and robust cross-domain reliability.</li><li>Improved secure boot infrastructure and firmware authentication flows, contributing to trusted update pipelines and hardened system startup paths for field devices.</li><li>Designed a Rust-based CAN logging and analysis tool using C FFI and Vector XL drivers, supporting real-time streaming, offline playback, and development-lab diagnostics.</li><li>Supported board bring-up, low-level debugging, and peripheral integration (I²C, SPI, UART, CAN), collaborating with electrical and test engineering to rapidly isolate system-level issues.</li><li>Built Python and Rust utilities that automated build artifacts, parsing, and hardware-in-loop testing, raising internal CI/CD and developer-experience quality.</li>
     </ul>
   </li>
 </ul>
@@ -42,7 +42,7 @@ const FeatureList: FeatureItem[] = [
   <li>
     <strong>Accomplishments:</strong>
     <ul>
-      <li>Improved Spanish and Bahasa Indonesian Kaldi ASR models by over 40\% WER reduction through acoustic/LM tuning, pipeline optimization, and dataset refinement.</li><li>Automated multilingual data collection and processing using Python and Bash, scraping and cleaning thousands of hours of captioned audio for model training.</li>
+      <li>Reduced WER of Spanish and Bahasa Indonesian Kaldi ASR models by 40\% through acoustic tuning, language model refinement, and dataset optimization.</li><li>Automated multilingual audio data processing using Python and Bash, building scalable pipelines for large-scale model training.</li>
     </ul>
   </li>
 </ul>
@@ -66,7 +66,7 @@ const FeatureList: FeatureItem[] = [
   <li>
     <strong>Details:</strong>
     <ul>
-      <li>Current GPA: 4.00</li><li>Coursework focuses on embedded and systems security including secure system design, binary exploitation, network security, database security, and applied cryptography.</li><li>Exploring resilience and hardening techniques for embedded Linux, IoT firmware, and cyber-physical systems.</li>
+      <li>Current GPA: 4.00</li><li>Coursework emphasizes secure embedded systems, Linux hardening, network security, applied cryptography, and binary exploitation.</li>
     </ul>
   </li>
 </ul>
@@ -81,7 +81,7 @@ const FeatureList: FeatureItem[] = [
   <li>
     <strong>Details:</strong>
     <ul>
-      <li>GPA: 3.9 / 4.00</li><li>Relevant Coursework: Operating Systems, Cryptography, Embedded Systems, Data Structures, Algorithms, Software Engineering, Assembly, Statistics, and Linear Algebra.</li>
+      <li>GPA: 3.9 / 4.00</li><li>Relevant Coursework: Embedded Systems, Operating Systems, Cryptography, Data Structures, Algorithms, Assembly, Software Engineering, Statistics, Linear Algebra.</li>
     </ul>
   </li>
 </ul>
