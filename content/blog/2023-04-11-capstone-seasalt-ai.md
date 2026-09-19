@@ -1,7 +1,7 @@
 ---
 title: ASR Capstone at Seasalt AI
 slug: capstone_seasalt_ai
-summary: Machine learning project that performs automated speech recognition on Indonesian and Spanish
+summary: Machine learning project that performs automated speech recognition on Indonesian and Spanish.
 ---
 
 It’s been nearly a year since my last post, but I’m excited to share details about my latest project! As I approach the end of my senior year at WSU, I’ve spent the entire year working on a capstone project in collaboration with [Seasalt AI](https://seasalt.ai/). Our work has focused on two tasks: developing an Indonesian model from scratch during the first semester, and retraining Seasalt AI’s existing Spanish model this semester.

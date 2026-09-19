@@ -27,7 +27,7 @@
   </defs>
 </svg>
 <header class="topbar">
-  <a class="wordmark" href="{{ root }}">
+  <a class="wordmark" href="{{ root }}" aria-label="{{ site_title }}">
     <svg class="mark" viewBox="0 0 238.86 238.86" aria-hidden="true">
       <g class="ns-a"><use href="#ns-half"/></g>
       <g class="ns-b"><use href="#ns-half" transform="rotate(180 119.43 119.43)"/></g>
@@ -64,24 +64,6 @@ document.getElementById("theme-toggle").addEventListener("click", function () {
   var next = current === "dark" ? "light" : "dark";
   el.dataset.theme = next;
   try { localStorage.setItem("theme", next) } catch (e) {}
-});
-
-// Email links carry the address reversed and rot13'd in data-email (see
-// src/resume.rs). It only becomes a mailto when someone hovers, focuses or
-// taps the link, so nothing that just reads the page sees an address.
-document.querySelectorAll("a[data-email]").forEach(function (a) {
-  function reveal() {
-    var hidden = a.getAttribute("data-email");
-    if (!hidden) return;
-    a.href = "mailto:" + hidden.split("").reverse().join("").replace(/[a-z]/gi, function (c) {
-      var base = c <= "Z" ? 65 : 97;
-      return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
-    });
-    a.removeAttribute("data-email");
-  }
-  ["pointerenter", "focus", "touchstart"].forEach(function (type) {
-    a.addEventListener(type, reveal, { passive: true });
-  });
 });
 </script>
 </body>

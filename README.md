@@ -2,7 +2,7 @@
 
 A personal site: resume on the front page, markdown blog behind it, gruvbox in
 light and dark. The generator is a small Rust program in `src/` whose only
-dependency is a CommonMark parser — everything else is the standard library.
+dependency is a CommonMark parser, everything else is the standard library.
 The same resume markdown also typesets the PDF resume through LaTeX.
 
 ```
@@ -16,7 +16,7 @@ SITE_DRAFTS=1 cargo run -- build   # include posts marked draft: true
 
 ```
 site.toml            title, author, base_url, domain
-content/index.md     the resume — front page and PDF
+content/index.md     the resume front page and PDF
 content/blog/*.md    posts        -> /blog/<slug>/
 content/pages/*.md   flat pages   -> /<slug>/
 templates/*.html     {{ name }} substitution, no template language
@@ -59,8 +59,8 @@ tagline: Shown under the name on the site.
 pdf_title: Nathan Spelts' CV
 public: true                     # see "Contact details" below
 location: Vancouver, WA          # PDF only
-email: you [at] example [dot] com
-link: GitHub | https://github.com/yourname
+email: nathan at spelts dot net
+link: GitHub | https://github.com/micro-wizard`
 link: Resume (PDF) | /file/nathanSpeltsResume.pdf | web
 ---
 ```
@@ -99,15 +99,13 @@ the heading's link on the right. Add `{.web}` or `{.pdf}` after a `##` or
 `###` title to keep it out of the other output.
 
 **Contact details.** `email:` can be written plainly or as
-`you [at] example [dot] com`. The site never puts the address in its HTML:
-the link carries it reversed and rot13'd in `data-email`, and a few lines of
-script in `templates/base.html` restore it when someone hovers, focuses or
-taps it. `phone:` only ever goes in the PDF. `public: true` marks a resume that
-is linked from the site: its PDF leaves the phone out even if one is set, and
-spells the email as `you [at] example [dot] com` with no mailto link. The
-company variants in `resume/variants/` leave `public` off, so they keep the
-plain email and phone. For the same protection in a post, write the link as
-`<a href="#" data-email="...">` with the encoded address.
+`you at example dot com`. The site only ever shows it spelled out that way,
+as plain text with no mailto link, so a person has to type it in. `phone:`
+only goes in the PDF. `public: true` marks a resume that is linked from the
+site: its PDF leaves the phone out even if one is set, and spells the email
+out the same way. The company variants in `resume/variants/` leave `public`
+off, so they keep the plain email and phone. In a post, write addresses out
+the same way by hand.
 
 The front page also has print styles: **Print → Save as PDF** gives you a
 clean copy with the site chrome stripped out.
@@ -166,7 +164,7 @@ toggle, which is then remembered in `localStorage`.
 5. **Settings → Pages → Custom domain**: enter the domain, then tick **Enforce
    HTTPS** once the certificate is issued (a few minutes).
 
-Hosting it as a project page (`yourname.github.io/repo`) instead works too —
+Hosting it as a project page (`yourname.github.io/repo`) instead works too,
 set `base_path = "/repo/"` in `site.toml` and leave `domain` empty.
 
 ## Notes

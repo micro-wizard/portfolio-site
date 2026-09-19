@@ -179,8 +179,10 @@ footer {
 .masthead { margin-bottom: 2.5rem; }
 
 .mark-lg { display: block; width: 4.5rem; height: 4.5rem; margin-bottom: 1.5rem; }
-.mark-lg .ns-a { animation: ns-in-a 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.mark-lg .ns-b { animation: ns-in-b 0.9s 0.08s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+/* `backwards`, not `both`: once the entrance ends it must let go of
+   `transform`, or the hover transition above never runs and the halves jump. */
+.mark-lg .ns-a { animation: ns-in-a 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.mark-lg .ns-b { animation: ns-in-b 0.9s 0.08s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
 @keyframes ns-in-a { from { transform: translate(-90px, -140px); opacity: 0; } }
 @keyframes ns-in-b { from { transform: translate(90px, 140px); opacity: 0; } }
 
@@ -213,6 +215,36 @@ footer {
   padding-bottom: 1px;
 }
 .contact a:hover { color: var(--accent); border-bottom-color: currentColor; }
+
+/* The email is spelled out rather than linked, so people type it in. It
+   gets its own line; "at" and "dot" are tinted so it reads as deliberate. */
+.email {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 1.1rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: var(--fg-soft);
+}
+.email svg {
+  flex: none;
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.email .spelled { color: var(--accent); }
+.email + .contact { margin-top: 0.6rem; }
+
+/* On a phone the monogram alone stands in for the name, so the nav fits. */
+@media (max-width: 30rem) {
+  .wordmark > span { display: none; }
+  .topbar nav { gap: 1rem; }
+}
 
 /* --- prose --------------------------------------------------------------- */
 
@@ -452,6 +484,8 @@ footer {
   color: var(--muted);
 }
 .sim-stats div { display: flex; gap: 0.4rem; }
+/* The simulator still writes X/Y into these; they just stay out of sight. */
+.sim-stats [hidden] { display: none; }
 .sim-stats dd { margin: 0; color: var(--fg); }
 
 /* --- print: the front page doubles as a printable resume ----------------- */

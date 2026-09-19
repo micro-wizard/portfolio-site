@@ -29,8 +29,8 @@ and seeds grow.
   <div><dt>Brush</dt><dd id="SelectionDisplay4">–</dd></div>
   <div><dt>Particles</dt><dd id="SelectionDisplay1">–</dd></div>
   <div><dt>FPS</dt><dd id="SelectionDisplay2">–</dd></div>
-  <div><dt>X</dt><dd id="SelectionDisplay5">–</dd></div>
-  <div><dt>Y</dt><dd id="SelectionDisplay6">–</dd></div>
+  <div hidden><dt>X</dt><dd id="SelectionDisplay5"></dd></div>
+  <div hidden><dt>Y</dt><dd id="SelectionDisplay6"></dd></div>
 </dl>
 <script type="module">
   import { main } from "./sim/main.js";

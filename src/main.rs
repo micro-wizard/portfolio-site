@@ -135,6 +135,7 @@ fn build() -> io::Result<usize> {
         ("name", &escape(pick(doc.get("name"), site_title))),
         ("tagline", &escape(pick(doc.get("tagline"), cfg.get("tagline")))),
         ("links", &links),
+        ("email", &resume.web_email()),
         ("content", &resume.html()),
     ]);
     emit(

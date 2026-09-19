@@ -17,11 +17,11 @@
 //! the date range. With one part it is a project's one-line overview.
 //!
 //! Contact details: `email:` may be written plainly or as
-//! `name [at] domain [dot] com`. The site never prints it as text; the link
-//! is assembled by script when someone reaches for it. `phone:` only ever
-//! appears in the PDF. A file marked `public: true` (the front page) prints
-//! no phone and spells the email out as `[at]`/`[dot]` in its PDF too, since
-//! that PDF is linked from the site.
+//! `name at domain dot com`. The site only ever shows it spelled out that
+//! way, as text rather than a link, so a person has to type it in. `phone:`
+//! only appears in the PDF. A file marked `public: true` (the front page)
+//! prints no phone and spells the email out in its PDF too, since that PDF is
+//! linked from the site.
 
 use std::fs;
 use std::io;
@@ -114,12 +114,26 @@ impl Resume {
         Resume { doc, email, public, links, sections }
     }
 
+    /// The email line under the tagline: `nathan at spelts dot net`, with
+    /// the spelled-out words marked so they can be styled apart.
+    pub fn web_email(&self) -> String {
+        let Some((user, domain)) = self.email.split_once('@') else {
+            return String::new();
+        };
+        let domain = domain
+            .split('.')
+            .map(escape)
+            .collect::<Vec<_>>()
+            .join(" <span class=\"spelled\">dot</span> ");
+        format!(
+            "{} <span class=\"spelled\">at</span> {domain}",
+            escape(user)
+        )
+    }
+
     /// The contact links under the name on the front page.
     pub fn web_links(&self) -> String {
         let mut out = Vec::new();
-        if !self.email.is_empty() {
-            out.push(email_link(&self.email, "Email"));
-        }
         for link in self.links.iter().filter(|l| l.only.web()) {
             out.push(format!("<a href=\"{}\">{}</a>", escape(&link.href), escape(&link.label)));
         }
@@ -201,7 +215,7 @@ impl Resume {
             first.push(latex(phone, ""));
         }
         if self.public && !self.email.is_empty() {
-            first.push(latex(&mask_email(&self.email), ""));
+            first.push(latex(&spell_email(&self.email), ""));
         } else if !self.email.is_empty() {
             let email = &self.email;
             first.push(format!("\\href{{mailto:{}}}\n{{{}}}", latex_url(email), latex(email, "")));
@@ -236,33 +250,18 @@ impl Resume {
     }
 }
 
-/// `you [at] example [dot] com` -> `you@example.com`; plain addresses
+/// `nathan at spelts dot net` -> `nathan@spelts.net`; plain addresses
 /// pass through.
 fn unmask_email(src: &str) -> String {
-    src.trim().replace(" [at] ", "@").replace(" [dot] ", ".")
+    src.trim().replace(" at ", "@").replace(" dot ", ".")
 }
 
-fn mask_email(email: &str) -> String {
+/// `nathan@spelts.net` -> `nathan at spelts dot net`.
+pub fn spell_email(email: &str) -> String {
     match email.split_once('@') {
-        Some((user, domain)) => format!("{user} [at] {}", domain.replace('.', " [dot] ")),
+        Some((user, domain)) => format!("{user} at {}", domain.replace('.', " dot ")),
         None => email.to_string(),
     }
-}
-
-/// A mailto link with no address in the markup: `data-email` holds it
-/// reversed and rot13'd, and templates/base.html restores it on hover, focus
-/// or touch.
-pub fn email_link(email: &str, label: &str) -> String {
-    let hidden: String = email
-        .chars()
-        .rev()
-        .map(|c| match c {
-            'a'..='m' | 'A'..='M' => (c as u8 + 13) as char,
-            'n'..='z' | 'N'..='Z' => (c as u8 - 13) as char,
-            _ => c,
-        })
-        .collect();
-    format!("<a href=\"#\" data-email=\"{}\">{}</a>", escape(&hidden), escape(label))
 }
 
 fn parse_sections(body: &str) -> Vec<Section> {
