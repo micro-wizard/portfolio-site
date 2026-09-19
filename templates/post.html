@@ -1,0 +1,17 @@
+<article class="post">
+  <header class="post-header">
+    <p class="meta">
+      <time datetime="{{ date }}">{{ date_human }}</time>
+      <span class="dot">·</span>
+      <span>{{ reading_time }} min read</span>
+    </p>
+    <h1>{{ title }}</h1>
+    {{ tags }}
+  </header>
+  <div class="prose">
+    {{ content }}
+  </div>
+  <footer class="post-footer">
+    <a href="{{ root }}blog/">← All writing</a>
+  </footer>
+</article>

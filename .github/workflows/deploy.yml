@@ -1,51 +1,56 @@
-name: Deploy to GitHub Pages
+# Builds the site with cargo and publishes dist/ to GitHub Pages.
+# One-time setup: repo Settings -> Pages -> Source: "GitHub Actions".
+name: Deploy
 
 on:
   push:
-    branches:
-      - main
-    # Review gh actions docs if you want to further define triggers, paths, etc
-    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; queue them instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
-    name: Build Docusaurus
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: yarn
+          # include/particle-simulator is copied into the site at build time.
+          submodules: true
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Build website
-        run: yarn build
-
-      - name: Upload Build Artifact
-        uses: actions/upload-pages-artifact@v3
+      # Rust is preinstalled on the runner, so there is no toolchain action
+      # to trust or pin. Caching just keeps the build under a few seconds.
+      - uses: actions/cache@v4
         with:
-          path: build
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: Build site
+        run: cargo run --release -- build
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
 
   deploy:
-    name: Deploy to GitHub Pages
     needs: build
-
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
-
-    # Deploy to the github-pages environment
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    runs-on: ubuntu-latest
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deploy
         uses: actions/deploy-pages@v4

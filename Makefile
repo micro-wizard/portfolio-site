@@ -1,8 +1,14 @@
-DATA ?= resume/json/default.json
-OUTDIR ?= build
+VARIANT ?= default
 
-.PHONY: resume
+.PHONY: serve build resume
+
+serve:
+	cargo run -- serve
+
+build:
+	cargo run --release -- build
+
+# make resume VARIANT=garmin  ->  resume/variants/garmin.md
 resume:
-	pwd
-	$(MAKE) -C resume DATA=../$(DATA) OUTDIR=$(OUTDIR)
-	open $(OUTDIR)/nathan_spelts_$(basename $(notdir $(DATA)))_resume.pdf -a firefox
+	cargo run -- resume $(VARIANT)
+	open -a firefox resume/build/nathan_spelts_$(VARIANT)_resume.pdf

@@ -1,0 +1,18 @@
+[package]
+name = "site"
+version = "0.1.0"
+edition = "2021"
+description = "Static site generator for a resume + markdown blog"
+
+[[bin]]
+name = "site"
+path = "src/main.rs"
+
+[dependencies]
+# The only dependency: a CommonMark parser. Everything else is std.
+pulldown-cmark = { version = "0.13", default-features = false, features = ["html"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true

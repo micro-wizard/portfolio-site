@@ -1,3 +1,0 @@
-\Entry
-\textbf{(((name))):}
-(((items)))
