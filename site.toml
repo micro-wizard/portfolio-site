@@ -1,0 +1,17 @@
+# Flat key = "value" config. Parsed by src/config.rs (no TOML crate needed).
+title    = "Nathan Spelts"
+author   = "Nathan Spelts"
+tagline  = "Embedded software engineer"
+description = "Personal site, resume, and notes."
+# Full origin, no trailing slash. Used for canonical URLs, the feed and sitemap.
+base_url = "https://nathanspelts.com"
+# Path prefix the site is served from. "/" for a custom domain or user.github.io.
+# Use "/repo-name/" if you ever host it as a GitHub project page.
+base_path = "/"
+# Written to dist/CNAME for GitHub Pages. Leave empty to skip.
+domain   = "nathanspelts.com"
+# Sits under the heading on /blog/. Optional.
+blog_intro = "Notes on the things I build."
+# Where `site resume` copies the default resume PDF, relative to static/.
+# Kept at the old Docusaurus path so links already sent out keep working.
+resume_pdf = "file/nathanSpeltsResume.pdf"

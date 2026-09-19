@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page_title }}</title>
+<meta name="description" content="{{ description }}">
+<link rel="canonical" href="{{ canonical }}">
+<link rel="alternate" type="application/atom+xml" title="{{ site_title }}" href="{{ root }}feed.xml">
+<link rel="icon" href="{{ root }}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="{{ root }}favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="{{ root }}style.css">
+<meta property="og:title" content="{{ page_title }}">
+<meta property="og:description" content="{{ description }}">
+<meta property="og:url" content="{{ canonical }}">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark">
+<!-- Applied before first paint so the chosen theme never flashes. -->
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<!-- The NS monogram: two identical halves, the second turned 180 degrees.
+     Traced from the original logo artwork. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="ns-half" d="M175.16 55.73L143.31 55.73C143.31 49.13 140.64 43.16 136.31 38.84C131.99 34.52 126.02 31.85 119.43 31.85C112.83 31.85 106.86 34.52 102.53 38.84C98.21 43.16 95.54 49.13 95.54 55.73C95.54 62.07 98.01 67.84 102.05 72.12L102.61 72.69L119.43 89.97L132.6 103.5L88.05 103.5L31.84 45.46L31.84 238.86L0 238.86L0 0L31.84 0L67.18 36.3C69.99 28.72 74.41 21.93 80.02 16.32C90.1 6.23 104.04 0 119.43 0C134.82 0 148.75 6.23 158.83 16.32C168.92 26.41 175.16 40.34 175.16 55.73"/>
+  </defs>
+</svg>
+<header class="topbar">
+  <a class="wordmark" href="{{ root }}" aria-label="{{ site_title }}">
+    <svg class="mark" viewBox="0 0 238.86 238.86" aria-hidden="true">
+      <g class="ns-a"><use href="#ns-half"/></g>
+      <g class="ns-b"><use href="#ns-half" transform="rotate(180 119.43 119.43)"/></g>
+    </svg>
+    <span>{{ site_title }}</span>
+  </a>
+  <nav>
+    <a href="{{ root }}">Resume</a>
+    <a href="{{ root }}blog/">Writing</a>
+    <a href="{{ root }}particles/">Particles</a>
+    <button id="theme-toggle" type="button" aria-label="Toggle colour scheme" title="Toggle colour scheme">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <path class="sun" d="M8 3.2A4.8 4.8 0 1 0 8 12.8 4.8 4.8 0 1 0 8 3.2M8 0v1.8M8 14.2V16M0 8h1.8M14.2 8H16M2.34 2.34l1.27 1.27M12.39 12.39l1.27 1.27M13.66 2.34l-1.27 1.27M3.61 12.39l-1.27 1.27"/>
+        <path class="moon" d="M13.4 10.3A5.8 5.8 0 0 1 5.7 2.6 5.8 5.8 0 1 0 13.4 10.3Z"/>
+      </svg>
+    </button>
+  </nav>
+</header>
+
+<main>
+{{ content }}
+</main>
+
+<footer>
+  <span>© {{ year }} {{ author }}</span>
+  <span><a href="{{ root }}feed.xml">Feed</a></span>
+</footer>
+
+<script>
+document.getElementById("theme-toggle").addEventListener("click", function () {
+  var el = document.documentElement;
+  var current = el.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  var next = current === "dark" ? "light" : "dark";
+  el.dataset.theme = next;
+  try { localStorage.setItem("theme", next) } catch (e) {}
+});
+</script>
+</body>
+</html>

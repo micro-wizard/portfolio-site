@@ -1,0 +1,511 @@
+/* ---------------------------------------------------------------------------
+   Gruvbox, light and dark.
+
+   Light is defined on bare :root. Dark is applied when the OS asks for it
+   (unless the reader has explicitly chosen light) and when the toggle sets
+   data-theme="dark".
+   ------------------------------------------------------------------------ */
+
+:root {
+  --bg:        #fbf1c7;  /* gruvbox light bg0 */
+  --bg-soft:   #f2e5bc;  /* bg0_s */
+  --bg-inset:  #ebdbb2;  /* bg1   */
+  --fg:        #3c3836;  /* fg0   */
+  --fg-soft:   #504945;
+  --muted:     #7c6f64;  /* gray  */
+  --faint:     #d5c4a1;  /* bg2   */
+  --accent:    #af3a03;  /* orange */
+  --link:      #076678;  /* blue  */
+  --icon-sun:  none;
+  --icon-moon: inline;
+
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+          Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", "JetBrains Mono", Menlo,
+          Consolas, monospace;
+  --measure: 42rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #1d2021;  /* gruvbox dark bg0_h */
+    --bg-soft:   #282828;  /* bg0 */
+    --bg-inset:  #32302f;
+    --fg:        #ebdbb2;
+    --fg-soft:   #d5c4a1;
+    --muted:     #a89984;
+    --faint:     #3c3836;
+    --accent:    #fe8019;
+    --link:      #83a598;
+    --icon-sun:  inline;
+    --icon-moon: none;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg:        #1d2021;
+  --bg-soft:   #282828;
+  --bg-inset:  #32302f;
+  --fg:        #ebdbb2;
+  --fg-soft:   #d5c4a1;
+  --muted:     #a89984;
+  --faint:     #3c3836;
+  --accent:    #fe8019;
+  --link:      #83a598;
+  --icon-sun:  inline;
+  --icon-moon: none;
+}
+
+/* --- base ---------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.prose a, .intro a, footer a {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--link) 35%, transparent);
+  transition: text-decoration-color 120ms ease, color 120ms ease;
+}
+.prose a:hover, .intro a:hover, footer a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* --- chrome -------------------------------------------------------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.wordmark:hover { color: var(--fg); }
+
+/* The NS monogram (templates/base.html). Its two halves are the same shape
+   turned 180 degrees; they part slightly on hover and slide together when
+   the front page loads. Offsets are in the mark's own units (238 wide). */
+.mark { flex: none; width: 1.35rem; height: 1.35rem; overflow: visible; }
+.mark .ns-a { fill: var(--fg); }
+.mark .ns-b { fill: var(--accent); }
+.mark .ns-a, .mark .ns-b { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.wordmark:hover .ns-a, .mark-lg:hover .ns-a { transform: translate(-18px, -18px); }
+.wordmark:hover .ns-b, .mark-lg:hover .ns-b { transform: translate(18px, 18px); }
+
+.topbar nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.85rem;
+}
+.topbar nav a { color: var(--muted); }
+.topbar nav a:hover { color: var(--fg); }
+
+#theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 0;
+}
+#theme-toggle:hover { color: var(--accent); }
+#theme-toggle svg { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; }
+#theme-toggle .sun  { display: var(--icon-sun); }
+#theme-toggle .moon { display: var(--icon-moon); fill: currentColor; stroke: none; }
+
+main {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 4rem;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 3rem;
+  border-top: 1px solid var(--faint);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* --- resume masthead ----------------------------------------------------- */
+
+.masthead { margin-bottom: 2.5rem; }
+
+.mark-lg { display: block; width: 4.5rem; height: 4.5rem; margin-bottom: 1.5rem; }
+/* `backwards`, not `both`: once the entrance ends it must let go of
+   `transform`, or the hover transition above never runs and the halves jump. */
+.mark-lg .ns-a { animation: ns-in-a 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.mark-lg .ns-b { animation: ns-in-b 0.9s 0.08s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+@keyframes ns-in-a { from { transform: translate(-90px, -140px); opacity: 0; } }
+@keyframes ns-in-b { from { transform: translate(90px, 140px); opacity: 0; } }
+
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.tagline {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  margin-top: 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+.contact a {
+  color: var(--muted);
+  border-bottom: 1px solid var(--faint);
+  padding-bottom: 1px;
+}
+.contact a:hover { color: var(--accent); border-bottom-color: currentColor; }
+
+/* The email is spelled out rather than linked, so people type it in. It
+   gets its own line; "at" and "dot" are tinted so it reads as deliberate. */
+.email {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 1.1rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: var(--fg-soft);
+}
+.email svg {
+  flex: none;
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.email .spelled { color: var(--accent); }
+.email + .contact { margin-top: 0.6rem; }
+
+/* On a phone the monogram alone stands in for the name, so the nav fits. */
+@media (max-width: 30rem) {
+  .wordmark > span { display: none; }
+  .topbar nav { gap: 1rem; }
+}
+
+/* --- prose --------------------------------------------------------------- */
+
+.prose > *:first-child { margin-top: 0; }
+.prose > *:last-child  { margin-bottom: 0; }
+
+.prose h2 {
+  margin: 3rem 0 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--faint);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* A resume entry: organisation on the left, dates pushed to the right.
+   src/resume.rs builds these from the `###` heading and its meta line. */
+.prose h3 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.75rem 0 0.15rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.prose h3 .when {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.prose h3 + p {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.prose h4 {
+  margin: 1.5rem 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.prose p { margin: 0 0 1.1rem; }
+
+.prose ul, .prose ol { margin: 0 0 1.1rem; padding-left: 1.2rem; }
+.prose li { margin: 0.3rem 0; }
+.prose li::marker { color: color-mix(in srgb, var(--muted) 55%, transparent); }
+
+.prose strong { font-weight: 600; }
+
+.prose hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--faint);
+}
+
+.prose blockquote {
+  margin: 1.5rem 0;
+  padding: 0.1rem 0 0.1rem 1.1rem;
+  border-left: 2px solid var(--accent);
+  color: var(--muted);
+}
+
+.prose img { max-width: 100%; height: auto; border-radius: 4px; }
+
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--bg-inset);
+  padding: 0.12em 0.35em;
+  border-radius: 3px;
+}
+
+.prose pre {
+  margin: 1.5rem 0;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  background: var(--bg-soft);
+  border: 1px solid var(--faint);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.prose pre code { background: none; padding: 0; font-size: inherit; }
+
+.table-scroll, .prose table { display: block; overflow-x: auto; }
+.prose table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.prose th, .prose td {
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  text-align: left;
+  border-bottom: 1px solid var(--faint);
+}
+.prose th { font-weight: 600; color: var(--muted); }
+
+.prose sup a { text-decoration: none; }
+.footnote-definition { font-size: 0.85rem; color: var(--muted); }
+.footnote-definition p { display: inline; }
+
+/* --- blog ---------------------------------------------------------------- */
+
+.page h1, .post-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.7rem, 4.5vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.intro { margin: 0 0 2.5rem; color: var(--muted); }
+
+.entries { list-style: none; margin: 0; padding: 0; }
+
+.entry {
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--faint);
+}
+.entry:first-child { padding-top: 0; }
+
+.entry-title {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.entry-title:hover { color: var(--accent); }
+
+.entry time {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.entry p { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.92rem; }
+
+.post-header { margin-bottom: 2.5rem; }
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.dot { opacity: 0.6; }
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+}
+.tags li {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--faint);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.post-footer {
+  margin-top: 3.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--faint);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+.post-footer a { color: var(--muted); }
+.post-footer a:hover { color: var(--accent); }
+
+/* --- particle simulator ------------------------------------------------- */
+
+.sim-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1.5rem 0 0.75rem;
+}
+.sim-controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--faint);
+  border-radius: 4px;
+  background: var(--bg-soft);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.sim-controls button:hover { border-color: var(--accent); color: var(--accent); }
+.sim-controls kbd {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* The simulator sizes the canvas from this box and maps the pointer with
+   offsetLeft/offsetTop, so the canvas gets no CSS size, border or padding and
+   nothing around it may be positioned. */
+.sim-stage { margin: 0 0 0.75rem; line-height: 0; }
+.sim-stage canvas { display: block; border-radius: 4px; touch-action: none; cursor: crosshair; }
+.sim-stage noscript p { line-height: 1.6; }
+
+.sim-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin: 0 0 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.sim-stats div { display: flex; gap: 0.4rem; }
+/* The simulator still writes X/Y into these; they just stay out of sight. */
+.sim-stats [hidden] { display: none; }
+.sim-stats dd { margin: 0; color: var(--fg); }
+
+/* --- print: the front page doubles as a printable resume ----------------- */
+
+@media print {
+  :root {
+    --bg: #fff; --bg-soft: #fff; --bg-inset: #fff;
+    --fg: #000; --fg-soft: #000; --muted: #444; --faint: #bbb;
+    --accent: #000; --link: #000;
+  }
+  .topbar, footer, .post-footer { display: none; }
+  body { font-size: 10.5pt; line-height: 1.45; }
+  main { max-width: none; padding: 0; }
+  .masthead { margin-bottom: 1.5rem; }
+  .prose h2 { margin-top: 1.5rem; }
+  .prose h3 { margin-top: 1rem; }
+  .prose a { text-decoration: none; }
+  .prose h2, .prose h3, .entry { break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
