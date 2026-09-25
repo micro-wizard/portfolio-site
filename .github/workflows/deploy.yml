@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # include/particle-simulator is copied into the site at build time.
+          # include/particles is built with Trunk and copied into the site.
           submodules: true
 
       # Rust is preinstalled on the runner, so there is no toolchain action
@@ -34,8 +34,19 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+            include/particles/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: cargo-${{ runner.os }}-
+
+      # Trunk fetches the matching wasm-bindgen and wasm-opt itself.
+      - name: Build particle simulator
+        env:
+          TRUNK_VERSION: v0.21.5
+        run: |
+          rustup target add wasm32-unknown-unknown
+          curl -fsSL "https://github.com/trunk-rs/trunk/releases/download/$TRUNK_VERSION/trunk-x86_64-unknown-linux-gnu.tar.gz" \
+            | tar -xz -C "$HOME/.cargo/bin" trunk
+          cd include/particles && trunk build --release --public-url ./
 
       - name: Build site
         run: cargo run --release -- build

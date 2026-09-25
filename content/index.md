@@ -71,10 +71,10 @@ Bare-metal `no_std` Rust boot code and kernel for the Raspberry Pi 4, booted str
 
 ### [Particle Simulator](/particles/) {.web}
 
-A falling-sand physics sandbox in JavaScript and WebGL. Try it on the [Particles](/particles/) page.
+A GPU particle physics sandbox in Rust, running on WebGPU through wgpu. Try it on the [Particles](/particles/) page.
 
-- Simulates sand, water, lava, steam, fire and growing seeds with local density and reaction rules.
-- Renders every particle with a small WebGL sprite renderer, targeting 60 fps.
+- Particles move freely rather than on a grid, and sand, gravel, powder, water, ice, steam, lava and obsidian each have their own physics.
+- Heat moves between materials, so lava cools into obsidian and water boils into steam.
 
 ### CAN Logger {.web}
 

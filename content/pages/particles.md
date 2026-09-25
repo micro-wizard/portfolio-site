@@ -1,40 +1,18 @@
 ---
 title: Particles
-description: A falling-sand physics sandbox written in JavaScript and WebGL.
+description: A GPU particle physics sandbox written in Rust and WebGPU.
 ---
 
-A falling-sand sandbox I wrote in JavaScript and WebGL. Pick a material and
-draw on the canvas. Sand piles up, water spreads out, lava sets things on fire
-and seeds grow.
+A particle physics sandbox I wrote in Rust, running on the GPU through wgpu
+and WebGPU. Particles aren't tied to grid cells: sand, gravel, powder, water,
+ice, steam, lava and obsidian each have their own physics, and heat moves
+between them, so lava cools into obsidian and water boils into steam. Pick a
+material or a heat brush in the panel and draw; <kbd>F1</kbd> hides the panel.
 
-<div class="sim-controls">
-  <button type="button" id="sand-select">Sand <kbd>Q</kbd></button>
-  <button type="button" id="water-select">Water <kbd>W</kbd></button>
-  <button type="button" id="lava-select">Lava <kbd>E</kbd></button>
-  <button type="button" id="seed-select">Seed <kbd>R</kbd></button>
-  <button type="button" id="steam-select">Steam <kbd>A</kbd></button>
-  <button type="button" id="stone-select">Stone <kbd>S</kbd></button>
-  <button type="button" id="border-select">Wall <kbd>D</kbd></button>
-  <button type="button" id="fire-select">Fire <kbd>F</kbd></button>
-  <button type="button" id="eraser">Erase <kbd>X</kbd></button>
-  <button type="button" id="brush-decrease" aria-label="Smaller brush">Brush − <kbd>1</kbd></button>
-  <button type="button" id="brush-increase" aria-label="Larger brush">Brush + <kbd>2</kbd></button>
-</div>
-<div id="div1" class="sim-stage">
-  <canvas id="glcanvas" width="600" height="450"></canvas>
-  <noscript><p>The simulator needs JavaScript and WebGL.</p></noscript>
-</div>
-<dl class="sim-stats">
-  <div><dt>Material</dt><dd id="SelectionDisplay3">–</dd></div>
-  <div><dt>Brush</dt><dd id="SelectionDisplay4">–</dd></div>
-  <div><dt>Particles</dt><dd id="SelectionDisplay1">–</dd></div>
-  <div><dt>FPS</dt><dd id="SelectionDisplay2">–</dd></div>
-  <div hidden><dt>X</dt><dd id="SelectionDisplay5"></dd></div>
-  <div hidden><dt>Y</dt><dd id="SelectionDisplay6"></dd></div>
-</dl>
-<script type="module">
-  import { main } from "./sim/main.js";
-  main();
-</script>
+<iframe class="sim-stage" src="app/" title="Particle simulator"></iframe>
 
-Source: [Particle-Simulator on GitHub](https://github.com/micro-wizard/Particle-Simulator).
+It needs a browser with WebGPU. The frame shows the reason if it can't start.
+
+Source: [particles on GitHub](https://github.com/micro-wizard/particles).
+This replaced an older falling-sand sandbox written in JavaScript and WebGL,
+[Particle-Simulator](https://github.com/micro-wizard/Particle-Simulator).

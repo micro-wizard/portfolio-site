@@ -1,12 +1,16 @@
 VARIANT ?= default
 
-.PHONY: serve build resume
+.PHONY: serve build particles resume
 
-serve:
+serve: particles
 	cargo run -- serve
 
-build:
+build: particles
 	cargo run --release -- build
+
+# The simulator on /particles/, copied into dist/ by the site build.
+particles:
+	cd include/particles && trunk build --release --public-url ./
 
 # make resume VARIANT=garmin  ->  resume/variants/garmin.md
 resume:
