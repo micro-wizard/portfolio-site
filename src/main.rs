@@ -2,7 +2,7 @@
 //!
 //!   site build          render ./content into ./dist
 //!   site serve [port]   build, then serve ./dist with rebuild-on-change
-//!   site resume [--tex] [variant ...]
+//!   site resume [--typ] [variant ...]
 //!                       typeset the resume PDF from the same markdown
 
 mod config;
@@ -66,7 +66,7 @@ fn main() {
         other => {
             eprintln!(
                 "unknown command: {other}\n\
-                 usage: site [build | serve [port] | resume [--tex] [variant ...]]"
+                 usage: site [build | serve [port] | resume [--typ] [variant ...]]"
             );
             std::process::exit(2);
         }

@@ -116,16 +116,16 @@ clean copy with the site chrome stripped out.
 cargo run -- resume              # content/index.md -> resume/build/, and
                                  # copies it to static/file/nathanSpeltsResume.pdf
 cargo run -- resume garmin       # resume/variants/garmin.md
-cargo run -- resume --tex garmin # write the .tex only, skip latexmk
+cargo run -- resume --typ garmin # write the .typ only, skip typst
 make resume VARIANT=garmin       # same, then open the PDF
 ```
 
-This needs a TeX distribution with `latexmk` and `xelatex` (MacTeX, TeX
-Live). The site build doesn't: the published PDF is committed under
-`static/`, so rerun `cargo run -- resume` and commit when the resume changes.
+This needs `typst` on the path (`brew install typst`). The site build
+doesn't: the published PDF is committed under `static/`, so rerun
+`cargo run -- resume` and commit when the resume changes.
 
-`resume/resume.tex` is the document template, and `resume/simpleresumecv.cls`
-and `resume/Fonts/` are the class it uses. Company-tailored versions are
+`resume/resume.typ` is the document template, `resume/lib.typ` is the layout
+it imports, and `resume/Fonts/` holds the Tinos faces it sets. Company-tailored versions are
 full copies of `content/index.md` in `resume/variants/`, which is gitignored.
 PDFs are named `nathan_spelts_<variant>_resume.pdf`.
 

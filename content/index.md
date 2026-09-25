@@ -1,6 +1,6 @@
 ---
 name: Nathan Spelts
-tagline: Firmware engineer — embedded C, ECU flashing, low-level systems, Rust.
+tagline: Firmware engineer — embedded C, automotive diagnostics, low-level systems, Rust.
 description: Nathan Spelts — embedded software engineer. Resume, projects, and writing.
 # Linked from the site: no phone, and the email stays spelled out.
 public: true
@@ -16,25 +16,26 @@ link: Resume (PDF) | /file/nathanSpeltsResume.pdf | web
 
 ## Summary
 
-I write embedded C for automotive ECU reprogramming, after nearly three years on safety-critical forklift firmware, secure boot, and Rust tooling for CAN diagnostics. Currently pursuing an M.S. in Cybersecurity at Georgia Tech, focused on cyber-physical systems.
+I write embedded C for automotive diagnostic tools. Before that, I spent nearly three years on safety-critical forklift firmware, secure boot, and Rust CAN tooling. Currently pursuing an M.S. in Cybersecurity at Georgia Tech, focused on cyber-physical systems.
 
 ## Work Experience
 
 ### [Salvo Software](https://www.salvosoftware.com/)
 
-Firmware Engineer · Vancouver, WA · Apr 2026 – Present
+Aftermarket Automotive Engineer · Vancouver, WA · Apr 2026 – Present
 
-- Maintain production embedded C firmware for an automotive diagnostic tool that reprograms vehicle ECUs.
-- Implement flash routines for reprogramming a wide range of ECUs, with a focus on reliability.
-- Develop .NET cloud services that support the diagnostic tool.
+- Maintain production embedded C firmware for a widely used vehicle diagnostic tool.
+- Implement ECU software update routines for engine and transmission controllers, with a focus on reliability.
+- Develop cloud services that support the tool.
 
 ### [Hyster-Yale Materials Handling](https://www.hyster-yale.com/)
 
 Software Engineer II · Fairview, OR · Aug 2023 – Apr 2026
 
-- Developed safety-critical embedded C firmware for forklift controllers under industry safety standards.
+- Wrote safety-critical embedded C firmware for a truck controller, from pallet jacks to container handlers.
 - Improved secure boot and firmware authentication to guard against tampering and unsafe OTA updates.
-- Built a Rust CAN logger and analyzer for Vector XL hardware via C FFI, for live and offline diagnostics.
+- Built a Rust CAN flashing and diagnostics tool (Vector XL, C FFI) used by about 25 people; it cut 3 minutes from every flash and took plain binaries, not the commercial tool's zip and layout file.
+- Developed Lua applications for an in-truck smart display running embedded Linux.
 
 ### [Seasalt.AI](https://seasalt.ai)
 
@@ -49,20 +50,20 @@ Data Science Intern · Remote · Jul 2022 – May 2023
 
 Master of Science in Cybersecurity – *Cyber-Physical Systems* · Remote · Aug 2025 – Present
 
-- Current GPA: 4.00
+- Current GPA: 4.00 / 4.00
 - Coursework: secure system design, binary exploitation, network and database security, applied cryptography.
 
 ### [Washington State University](https://wsu.edu/)
 
 Bachelor of Science in Computer Science · Vancouver, WA · Graduated May 2023
 
-- GPA: 3.9 / 4.00
+- GPA: 3.90 / 4.00
 
 ## Projects
 
-### [Raspberry Pi 4 Bare-Metal Kernel](https://github.com/micro-wizard/raspi4_rust_bootloader)
+### [Raspberry Pi 4 Rust Bootloader](https://github.com/micro-wizard/raspi4_rust_bootloader)
 
-A `no_std` Rust kernel for the Raspberry Pi 4, booted straight from the SD card.
+Bare-metal `no_std` Rust boot code and kernel for the Raspberry Pi 4, booted straight from the SD card.
 
 - Wrote AArch64 startup assembly that parks secondary cores, zeroes BSS and sets up the stack for Rust.
 - Drove the VideoCore GPU via its mailbox interface for a double-buffered framebuffer with text rendering.
@@ -93,6 +94,7 @@ Developed a Rust driver for Vector XL devices, enabling CAN message transmission
 
 ## Skills
 
-- **Programming Languages:** C, C++, Rust, Python, C#, Bash
-- **Embedded & Systems:** Secure Boot, Bootloaders, Bare-Metal ARM, RTOS, I2C / SPI / UART / CAN, Memory-Mapped I/O, GDB, QEMU
-- **Tools & Technologies:** .NET, Git, GitHub Actions, Docker, Linux, FFI (Rust/C), Vector XL
+- **Programming Languages:** C, C++, Rust, Python, C#, Lua, Bash
+- **Embedded & Systems:** Secure Boot, Bootloaders, Bare-Metal ARM, Nucleus RTOS, CMSIS-RTOS
+- **Protocols:** CAN, UDS, ISO-TP, J1939, CANopen, I2C, SPI, UART
+- **Tools & Technologies:** .NET, Git, GitHub Actions, Docker, Linux, GDB, QEMU, Vector XL

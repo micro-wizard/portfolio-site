@@ -240,6 +240,13 @@ footer {
 .email .spelled { color: var(--accent); }
 .email + .contact { margin-top: 0.6rem; }
 
+/* On big screens the column grows and the type grows with it, so the page
+   fills more of the window without the lines getting too long to read. */
+@media (min-width: 75rem) {
+  :root { --measure: 48rem; }
+  body { font-size: 17px; }
+}
+
 /* On a phone the monogram alone stands in for the name, so the nav fits. */
 @media (max-width: 30rem) {
   .wordmark > span { display: none; }

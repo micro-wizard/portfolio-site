@@ -2,7 +2,7 @@ target/
 dist/
 .DS_Store
 
-# Resume: LaTeX output, and the company-tailored variants, which stay local.
+# Resume: typst output, and the company-tailored variants, which stay local.
 resume/build/
 resume/variants/
 # Data for the old Python generator, kept locally for reference.

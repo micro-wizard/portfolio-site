@@ -1,5 +1,5 @@
 //! The resume: one markdown file rendered two ways — HTML for the front page
-//! and LaTeX (resume/simpleresumecv.cls) for the PDF.
+//! and Typst (resume/lib.typ) for the PDF.
 //!
 //! The body is ordinary markdown with a little structure:
 //!
@@ -172,82 +172,95 @@ impl Resume {
         out
     }
 
-    /// A complete .tex document for resume/resume.tex.
-    pub fn latex(&self, template: &Template, website: &str) -> String {
+    /// A complete .typ document for resume/resume.typ.
+    pub fn typst(&self, template: &Template, website: &str) -> String {
         let mut body = String::new();
         for section in self.sections.iter().filter(|s| s.only.pdf()) {
             let entries: Vec<&Entry> = section.entries.iter().filter(|e| e.only.pdf()).collect();
             if section.intro.trim().is_empty() && entries.is_empty() {
                 continue;
             }
-            if !section.title.is_empty() {
-                let title = latex(&section.title, "");
-                body.push_str(&format!("\\Section{{{title}}}{{{title}}}{{PDF:{title}}}\n"));
+            if !body.is_empty() {
+                body.push_str("#section-gap\n");
             }
-            let intro = latex(&section.intro, "\\Entry\n");
+            if !section.title.is_empty() {
+                body.push_str(&format!("#section[{}]\n", typst(&section.title, INLINE)));
+            }
+            let intro = typst(&section.intro, BLOCK);
             if !intro.is_empty() {
                 body.push_str(&intro);
                 body.push_str("\n\n");
             }
             for entry in entries {
-                body.push_str(&latex_entry(entry));
+                body.push_str(&typst_entry(entry));
             }
-            body.push('\n');
         }
 
         let doc = &self.doc;
         template.render(&[
-            ("name", &latex(doc.get("name"), "")),
-            ("pdf_title", &latex(doc.get("pdf_title"), "")),
-            ("website", &latex_url(website)),
-            ("subtitle", &self.latex_subtitle(website)),
+            ("author", &typst_string(doc.get("name"))),
+            ("title", &typst_string(doc.get("pdf_title"))),
+            ("name", &typst(doc.get("name"), INLINE)),
+            ("subtitle", &self.typst_subtitle(website)),
             ("body", &body),
         ])
     }
 
     /// Phone · email · location, then the remaining links on their own line.
-    fn latex_subtitle(&self, website: &str) -> String {
-        const SEP: &str = "\n\\,\\SubBulletSymbol\\,\n";
+    fn typst_subtitle(&self, website: &str) -> String {
+        const SEP: &str = " #sub-sep ";
         let pdf_links: Vec<&Link> = self.links.iter().filter(|l| l.only.pdf()).collect();
         let mut first = Vec::new();
         let phone = self.doc.get("phone");
         if !phone.is_empty() && !self.public {
-            first.push(latex(phone, ""));
+            first.push(typst(phone, INLINE));
         }
         if self.public && !self.email.is_empty() {
-            first.push(latex(&spell_email(&self.email), ""));
+            first.push(typst(&spell_email(&self.email), INLINE));
         } else if !self.email.is_empty() {
             let email = &self.email;
-            first.push(format!("\\href{{mailto:{}}}\n{{{}}}", latex_url(email), latex(email, "")));
+            first.push(format!(
+                "#link(\"mailto:{}\")[{}]",
+                typst_string(email),
+                typst(email, INLINE)
+            ));
         }
         let location = self.doc.get("location");
         if !location.is_empty() {
-            first.push(format!("{{{}}}", latex(location, "")));
+            first.push(typst(location, INLINE));
         }
-        let second: Vec<String> = pdf_links
-            .iter()
-            .map(|l| {
-                let href = if l.href.starts_with('/') {
-                    format!("{website}{}", l.href)
-                } else {
-                    l.href.clone()
-                };
-                let shown = href
-                    .trim_start_matches("https://")
-                    .trim_start_matches("http://")
-                    .trim_end_matches('/');
-                format!("{{\\color{{blue}}\\href{{{}}}{{{}}}}}", latex_url(&href), latex(shown, ""))
-            })
-            .collect();
-        let mut out = String::from("\\begin{SubTitle}\n");
+        let second: Vec<String> = pdf_links.iter().map(|l| shown_link(l.href(website))).collect();
+        let mut out = String::from("#subtitle[\n");
         out.push_str(&first.join(SEP));
         if !second.is_empty() {
-            out.push_str("\n\\par\n");
-            out.push_str(&second.join("\\,\\SubBulletSymbol\\,"));
+            out.push_str("\n\n");
+            out.push_str(&second.join(SEP));
         }
-        out.push_str("\n\\end{SubTitle}");
+        out.push_str("\n]");
         out
     }
+}
+
+impl Link {
+    /// A site-relative href is spelled out in full in the PDF, which is read
+    /// away from the site.
+    fn href(&self, website: &str) -> String {
+        if self.href.starts_with('/') {
+            format!("{website}{}", self.href)
+        } else {
+            self.href.clone()
+        }
+    }
+}
+
+/// A blue link showing the bare URL, the way the subtitle and the projects
+/// print them.
+fn shown_link(href: String) -> String {
+    let shown = href
+        .trim_start_matches("https://")
+        .trim_start_matches("http://")
+        .trim_end_matches('/');
+    format!("#shown-link(\"{}\")[{}]", typst_string(&href), typst(shown, INLINE))
 }
 
 /// `nathan at spelts dot net` -> `nathan@spelts.net`; plain addresses
@@ -358,152 +371,155 @@ fn inline_html(src: &str) -> String {
         .to_string()
 }
 
-fn latex_entry(entry: &Entry) -> String {
-    let title = latex(&entry.title, "");
-    let mut out = String::from("\\Entry\n");
+fn typst_entry(entry: &Entry) -> String {
+    let title = typst(&entry.title, INLINE);
+    let mut head = if entry.url.is_empty() {
+        format!("*{title}*")
+    } else {
+        format!("#link(\"{}\")[*{title}*]", typst_string(&entry.url))
+    };
     let (lead, dates) = match entry.meta.as_slice() {
         [] => (None, None),
         [only] => (Some(only), None),
         [role, rest @ ..] => (Some(role), Some(rest)),
     };
-    match dates {
-        // A job or degree: the heading links the organisation, the dates sit
-        // on the right and the role goes on the bullet line below.
+    let aside = match dates {
+        // A job or degree: the heading links the organisation, the places
+        // follow it and the dates sit on the right.
         Some(rest) => {
             let (places, dates) = rest.split_at(rest.len() - 1);
-            if entry.url.is_empty() {
-                out.push_str(&format!("\\textbf{{{title}}}"));
-            } else {
-                out.push_str(&format!("\\href{{{}}}\n{{\\textbf{{{title}}}}}", latex_url(&entry.url)));
-            }
             for place in places {
-                out.push_str(&format!(",\n{}", latex(place, "")));
+                head.push_str(&format!(", {}", typst(place, INLINE)));
             }
-            out.push_str(&format!("\n\\hfill\n{}\n", latex_dates(&dates[0])));
+            Some(typst_dates(&dates[0]))
         }
-        // A project: its link is spelled out on the right.
-        None => {
-            out.push_str(&format!("\\textbf{{{title}}}\n\\hfill\n"));
-            if !entry.url.is_empty() {
-                let shown = entry.url.trim_start_matches("https://").trim_start_matches("http://");
-                out.push_str(&format!(
-                    "{{\\color{{blue}}\\href{{{}}}{{{}}}}}\n",
-                    latex_url(&entry.url),
-                    latex(shown.trim_end_matches('/'), "")
-                ));
-            }
-        }
+        // A project: its link is spelled out on the right instead.
+        None if !entry.url.is_empty() => Some(shown_link(entry.url.clone())),
+        None => None,
+    };
+
+    let mut out = format!("#entry([{head}]");
+    if let Some(aside) = aside {
+        out.push_str(&format!(", aside: [{aside}]"));
     }
     if let Some(lead) = lead {
-        out.push_str(&format!("\n\\Gap\n\\BulletItem\n{}\n", latex(lead, "")));
+        out.push_str(&format!(", role: [{}]", typst(lead, INLINE)));
     }
-    let body = latex(&entry.body, "\\SubBulletItem\n");
-    if !body.is_empty() {
-        out.push_str(&format!("\n\\Gap\n\\begin{{Detail}}\n{body}\n\\end{{Detail}}\n"));
+    let detail = typst(&entry.body, BULLETS);
+    if !detail.is_empty() {
+        out.push_str(&format!(", detail: [\n{detail}\n]"));
     }
-    out.push_str("\\Gap\n");
+    out.push_str(")\n");
     out
 }
 
-/// `Aug 2023 – Present` -> `\mbox{Aug 2023} --- \mbox{Present}`, matching the
-/// class's own date stamps.
-fn latex_dates(src: &str) -> String {
-    latex(src, "")
+/// `Aug 2023 – Present` -> `#box[Aug 2023] -- #box[Present]`, so that neither
+/// end of the range is broken across lines.
+fn typst_dates(src: &str) -> String {
+    typst(src, INLINE)
         .split(['–', '—'])
-        .map(|part| format!("\\mbox{{{}}}", part.trim()))
+        .map(|part| format!("#box[{}]", part.trim()))
         .collect::<Vec<_>>()
-        .join(" --- ")
+        .join(" -- ")
 }
 
-/// Markdown to LaTeX. List items are introduced with `item`; nested lists
+/// How the items of a markdown list are wrapped in the Typst output.
+type Wrap = (&'static str, &'static str);
+
+/// For a fragment that holds no list: a heading, a date, a line of meta.
+const INLINE: Wrap = ("", "");
+/// One flush-left paragraph per item, which is what the skills list wants.
+const BLOCK: Wrap = ("#block[", "]\n");
+/// A dotted bullet per item, under a job or a project.
+const BULLETS: Wrap = ("#sub-bullet[", "]\n");
+
+/// Markdown to Typst markup. List items are wrapped in `item`; nested lists
 /// flatten, and inline HTML is dropped.
-fn latex(src: &str, item: &str) -> String {
+fn typst(src: &str, item: Wrap) -> String {
     let mut out = String::new();
     let mut in_item = 0;
     for event in Parser::new_ext(src, crate::markdown_options()) {
         match event {
             Event::Start(Tag::Item) => {
                 in_item += 1;
-                out.push_str(item);
+                out.push_str(item.0);
             }
             Event::End(TagEnd::Item) => {
                 in_item -= 1;
-                out.push('\n');
+                out.push_str(item.1);
             }
             Event::End(TagEnd::Paragraph) if in_item == 0 => out.push_str("\n\n"),
-            Event::Start(Tag::Strong) => out.push_str("\\textbf{"),
-            Event::Start(Tag::Emphasis) => out.push_str("\\textit{"),
+            Event::Start(Tag::Strong) | Event::End(TagEnd::Strong) => out.push('*'),
+            Event::Start(Tag::Emphasis) | Event::End(TagEnd::Emphasis) => out.push('_'),
             Event::Start(Tag::Link { dest_url, .. }) => {
-                out.push_str(&format!("\\href{{{}}}{{", latex_url(&dest_url)));
+                out.push_str(&format!("#link(\"{}\")[", typst_string(&dest_url)));
             }
-            Event::End(TagEnd::Strong | TagEnd::Emphasis | TagEnd::Link) => out.push('}'),
-            Event::Text(text) => out.push_str(&latex_escape(&text)),
-            Event::Code(code) => out.push_str(&format!("\\texttt{{{}}}", latex_escape(&code))),
+            Event::End(TagEnd::Link) => out.push(']'),
+            // The class set code in the body face, and so does this.
+            Event::Text(text) | Event::Code(text) => out.push_str(&typst_escape(&text)),
             Event::SoftBreak => out.push('\n'),
-            Event::HardBreak => out.push_str("\\\\\n"),
+            Event::HardBreak => out.push_str("\\\n"),
             _ => {}
         }
     }
     out.trim().to_string()
 }
 
-fn latex_escape(text: &str) -> String {
+/// Everything Typst would read as markup rather than as text. Dashes, quotes
+/// and `...` are left alone: Typst turns them into the same dashes, curly
+/// quotes and ellipses that the TeX ligatures did.
+fn typst_escape(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
     for c in text.chars() {
-        match c {
-            '\\' => out.push_str("\\textbackslash{}"),
-            '&' | '%' | '$' | '#' | '_' | '{' | '}' => {
-                out.push('\\');
-                out.push(c);
-            }
-            '~' => out.push_str("\\textasciitilde{}"),
-            '^' => out.push_str("\\textasciicircum{}"),
-            _ => out.push(c),
+        if "\\#$*_[]<>@~`".contains(c) {
+            out.push('\\');
         }
+        out.push(c);
     }
     out
 }
 
-/// hyperref takes URLs nearly verbatim; only these would break the argument.
-fn latex_url(url: &str) -> String {
-    url.replace('\\', "/").replace('%', "\\%").replace('#', "\\#").replace(['{', '}'], "")
+/// Text inside a Typst string literal, as a URL or a document property.
+fn typst_string(s: &str) -> String {
+    s.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
-/// `site resume [--tex] [variant ...]`: write the .tex for each variant and,
-/// unless `--tex` is given, typeset it with latexmk. The default variant is
+/// `site resume [--typ] [variant ...]`: write the .typ for each variant and,
+/// unless `--typ` is given, typeset it with typst. The default variant is
 /// content/index.md, the same file as the front page, and its PDF is copied
 /// into static/ for the site to serve.
 pub fn command(args: &[String]) -> io::Result<()> {
-    let tex_only = args.iter().any(|a| a == "--tex");
+    let typ_only = args.iter().any(|a| a == "--typ");
     let mut variants: Vec<&str> = args.iter().map(String::as_str).filter(|a| !a.starts_with("--")).collect();
     if variants.is_empty() {
         variants.push("default");
     }
     let cfg = Config::load("site.toml");
-    let template = Template::load(DIR, "resume.tex");
+    let template = Template::load(DIR, "resume.typ");
     fs::create_dir_all(OUT)?;
 
     for variant in variants {
         let (name, path) = locate(variant);
         let resume = Resume::load(&path)?;
         let job = format!("{}_{name}_resume", slug(resume.doc.get("name")));
-        let tex = Path::new(OUT).join(format!("{job}.tex"));
-        fs::write(&tex, resume.latex(&template, &cfg.base_url()))?;
-        if tex_only {
-            println!("wrote {}", tex.display());
+        let typ = Path::new(OUT).join(format!("{job}.typ"));
+        fs::write(&typ, resume.typst(&template, &cfg.base_url()))?;
+        if typ_only {
+            println!("wrote {}", typ.display());
             continue;
         }
 
-        // The class loads its fonts from ./Fonts, so typeset from resume/.
-        let status = Command::new("latexmk")
+        // resume/ is the root: lib.typ is imported as `/lib.typ`, and Tinos
+        // is loaded from ./Fonts rather than from the system.
+        let status = Command::new("typst")
             .current_dir(DIR)
-            .args(["-xelatex", "-interaction=nonstopmode", "-halt-on-error", "-file-line-error"])
-            .arg("-outdir=build")
-            .arg(format!("build/{job}.tex"))
+            .args(["compile", "--root", ".", "--font-path", "Fonts"])
+            .arg(format!("build/{job}.typ"))
+            .arg(format!("build/{job}.pdf"))
             .status()
-            .map_err(|e| io::Error::new(e.kind(), format!("cannot run latexmk: {e}")))?;
+            .map_err(|e| io::Error::new(e.kind(), format!("cannot run typst: {e}")))?;
         if !status.success() {
-            return Err(io::Error::other(format!("latexmk failed on {}", tex.display())));
+            return Err(io::Error::other(format!("typst failed on {}", typ.display())));
         }
         let pdf = Path::new(OUT).join(format!("{job}.pdf"));
         println!("wrote {}", pdf.display());
