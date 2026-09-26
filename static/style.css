@@ -459,6 +459,11 @@ footer {
   border-radius: 4px;
   background: #0a080c;
 }
+/* At the full column width the menu shrinks to two rows, and 8:5 is the
+   2:1 world plus those rows. Narrower, it wraps onto more and needs 4:3. */
+@media (min-width: 42rem) {
+  .sim-stage { aspect-ratio: 8 / 5; }
+}
 
 /* --- print: the front page doubles as a printable resume ----------------- */
 
