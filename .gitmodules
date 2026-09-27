@@ -1,3 +1,6 @@
 [submodule "include/particles"]
 	path = include/particles
 	url = https://github.com/micro-wizard/particles
+[submodule "include/particle-simulator"]
+	path = include/particle-simulator
+	url = https://github.com/micro-wizard/Particle-Simulator

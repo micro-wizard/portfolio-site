@@ -22,6 +22,10 @@ git submodule update --init
 (cd include/particles && trunk build --release --public-url ./)
 ```
 
+The `/particle-simulator/` page frames the older JavaScript simulator from the
+`include/particle-simulator` submodule. It has no build step; the site copies
+the repository as-is.
+
 ## Layout
 
 ```
@@ -34,6 +38,7 @@ static/              copied verbatim to the site root (CSS lives here)
 resume/              LaTeX template, class and fonts for the PDF resume
 resume/variants/     company-tailored resumes, gitignored
 include/particles/   git submodule; its Trunk build is served at /particles/app/
+include/particle-simulator/  git submodule, served as-is at /particle-simulator/app/
 dist/                build output, gitignored
 ```
 

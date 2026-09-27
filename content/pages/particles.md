@@ -37,4 +37,4 @@ It needs a browser with WebGPU. The frame shows the reason if it can't start.
 
 Source: [particles on GitHub](https://github.com/micro-wizard/particles).
 This replaced an older falling-sand sandbox written in JavaScript and WebGL,
-[Particle-Simulator](https://github.com/micro-wizard/Particle-Simulator).
+[Particle-Simulator](/particle-simulator/), which you can still play.

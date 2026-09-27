@@ -490,6 +490,11 @@ footer {
 @media (min-width: 42rem) {
   .sim-stage { aspect-ratio: 8 / 5; }
 }
+/* The older JavaScript simulator on /particle-simulator/ follows the site's
+   theme, so its frame does too until it paints. It makes its canvas 60% of
+   the frame's height when it loads, so the frame starts tall enough for a
+   roughly 4:3 canvas; the page's script then shrinks it to what was drawn. */
+.sim-stage.classic { aspect-ratio: 4 / 5; background: var(--bg-soft); }
 
 /* --- print: the front page doubles as a printable resume ----------------- */
 

@@ -24,10 +24,17 @@ const OUT: &str = "dist";
 const CONTENT: &str = "content";
 const TEMPLATES: &str = "templates";
 const STATIC: &str = "static";
-/// The particles submodule's Trunk build (`trunk build --release --public-url ./`
-/// in include/particles), served at /particles/app/ and framed by
-/// content/pages/particles.md.
-const SIMULATOR: &str = "include/particles/dist";
+/// Simulators from git submodules: (built files, where they're served, how to
+/// produce them). Each is framed by the content/pages/ page of the same name.
+const SIMULATORS: [(&str, &str, &str); 2] = [
+    (
+        "include/particles/dist",
+        "particles/app",
+        "`trunk build --release --public-url ./` in include/particles",
+    ),
+    // No build step: the repository is the site.
+    ("include/particle-simulator", "particle-simulator/app", "nothing else"),
+];
 
 struct Post {
     slug: String,
@@ -99,13 +106,12 @@ fn build() -> io::Result<usize> {
     if Path::new(STATIC).exists() {
         copy_dir(Path::new(STATIC), Path::new(OUT))?;
     }
-    if Path::new(SIMULATOR).exists() {
-        copy_dir(Path::new(SIMULATOR), &Path::new(OUT).join("particles/app"))?;
-    } else {
-        eprintln!(
-            "warning: {SIMULATOR} missing; run `git submodule update --init`, then \
-             `trunk build --release --public-url ./` in include/particles"
-        );
+    for (built, served, build) in SIMULATORS {
+        if Path::new(built).exists() {
+            copy_dir(Path::new(built), &Path::new(OUT).join(served))?;
+        } else {
+            eprintln!("warning: {built} missing; run `git submodule update --init`, then {build}");
+        }
     }
 
     let mut pages = 0;
@@ -463,6 +469,10 @@ fn copy_dir(from: &Path, to: &Path) -> io::Result<()> {
     fs::create_dir_all(to)?;
     for entry in fs::read_dir(from)? {
         let entry = entry?;
+        // Dotfiles: a submodule's .git link, .DS_Store.
+        if entry.file_name().to_string_lossy().starts_with('.') {
+            continue;
+        }
         let target = to.join(entry.file_name());
         if entry.file_type()?.is_dir() {
             copy_dir(&entry.path(), &target)?;
