@@ -1,9 +1,14 @@
 <article class="resume">
   <header class="masthead">
-    <svg class="mark mark-lg" viewBox="0 0 238.86 238.86" aria-hidden="true">
-      <g class="ns-a"><use href="#ns-half"/></g>
-      <g class="ns-b"><use href="#ns-half" transform="rotate(180 119.43 119.43)"/></g>
-    </svg>
+    <!-- The SVG monogram shows first; monogram.js swaps in the 3D model once it
+         has loaded, and leaves the SVG in place if WebGL2 is unavailable. -->
+    <div class="mark-stage">
+      <svg class="mark mark-lg" viewBox="0 0 238.86 238.86" aria-hidden="true">
+        <g class="ns-a"><use href="#ns-half"/></g>
+        <g class="ns-b"><use href="#ns-half" transform="rotate(180 119.43 119.43)"/></g>
+      </svg>
+      <canvas class="mark-3d" data-model="{{ root }}monogram.glb" aria-hidden="true"></canvas>
+    </div>
     <h1>{{ name }}</h1>
     <p class="tagline">{{ tagline }}</p>
     <p class="email">
@@ -21,3 +26,4 @@
     {{ content }}
   </div>
 </article>
+<script type="module" src="{{ root }}monogram.js"></script>

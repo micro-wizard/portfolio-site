@@ -141,6 +141,7 @@ fn build() -> io::Result<usize> {
         ("links", &links),
         ("email", &resume.web_email()),
         ("content", &resume.html()),
+        ("root", &root),
     ]);
     emit(
         "index.html",

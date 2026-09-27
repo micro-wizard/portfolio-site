@@ -10,6 +10,28 @@ between them, so lava cools into obsidian and water boils into steam. Pick a
 material or a heat brush in the panel and draw; <kbd>F1</kbd> hides the panel.
 
 <iframe class="sim-stage" src="app/" title="Particle simulator" allow="fullscreen"></iframe>
+<script>
+// The simulator writes the height it wants at its width (the world across the
+// full width plus the menu) to data-natural-height on its own root element.
+// Size the frame to it; the aspect ratio in style.css stands until then.
+(function () {
+  var frame = document.querySelector(".sim-stage");
+  function watch() {
+    var root = frame.contentDocument && frame.contentDocument.documentElement;
+    if (!root) return;
+    function fit() {
+      var height = parseFloat(root.getAttribute("data-natural-height"));
+      if (height > 0) {
+        frame.style.aspectRatio = "auto";
+        frame.style.height = height + "px";
+      }
+    }
+    new MutationObserver(fit).observe(root, { attributeFilter: ["data-natural-height"] });
+    fit();
+  }
+  frame.addEventListener("load", watch);
+})();
+</script>
 
 It needs a browser with WebGPU. The frame shows the reason if it can't start.
 

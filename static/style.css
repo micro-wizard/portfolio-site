@@ -178,7 +178,20 @@ footer {
 
 .masthead { margin-bottom: 2.5rem; }
 
-.mark-lg { display: block; width: 4.5rem; height: 4.5rem; margin-bottom: 1.5rem; }
+.mark-stage { position: relative; width: 4.5rem; height: 4.5rem; margin-bottom: 1.5rem; }
+.mark-lg { display: block; width: 100%; height: 100%; transition: opacity 0.4s; }
+/* The 3D model overhangs the stage so it can turn without clipping. */
+.mark-3d {
+  position: absolute;
+  inset: -1rem;
+  width: calc(100% + 2rem);
+  height: calc(100% + 2rem);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.mark-stage.is-3d .mark-lg { opacity: 0; }
+.mark-stage.is-3d .mark-3d { opacity: 1; }
 /* `backwards`, not `both`: once the entrance ends it must let go of
    `transform`, or the hover transition above never runs and the halves jump. */
 .mark-lg .ns-a { animation: ns-in-a 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
@@ -210,11 +223,24 @@ footer {
   letter-spacing: 0.02em;
 }
 .contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   color: var(--muted);
-  border-bottom: 1px solid var(--faint);
-  padding-bottom: 1px;
 }
-.contact a:hover { color: var(--accent); border-bottom-color: currentColor; }
+/* Underline the label only, not the icon beside it. */
+.contact a span { border-bottom: 1px solid var(--faint); padding-bottom: 1px; }
+.contact a:hover { color: var(--accent); }
+.contact a:hover span { border-bottom-color: currentColor; }
+.contact svg { flex: none; width: 0.9rem; height: 0.9rem; }
+.contact .brand { fill: currentColor; }
+.contact .doc {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
 
 /* The email is spelled out rather than linked, so people type it in. It
    gets its own line; "at" and "dot" are tinted so it reads as deliberate. */
@@ -459,8 +485,8 @@ footer {
   border-radius: 4px;
   background: #0a080c;
 }
-/* At the full column width the menu shrinks to two rows, and 8:5 is the
-   2:1 world plus those rows. Narrower, it wraps onto more and needs 4:3. */
+/* A first guess at the 2:1 world plus its menu. Once the simulator starts,
+   the script in content/pages/particles.md sets the exact height it asks for. */
 @media (min-width: 42rem) {
   .sim-stage { aspect-ratio: 8 / 5; }
 }
@@ -474,6 +500,8 @@ footer {
     --accent: #000; --link: #000;
   }
   .topbar, footer, .post-footer { display: none; }
+  .mark-3d { display: none; }
+  .mark-stage.is-3d .mark-lg { opacity: 1; }
   body { font-size: 10.5pt; line-height: 1.45; }
   main { max-width: none; padding: 0; }
   .masthead { margin-bottom: 1.5rem; }

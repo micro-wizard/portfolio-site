@@ -9,7 +9,6 @@ location: Vancouver, WA
 email: nathan at spelts dot net
 link: Website | https://nathanspelts.com | pdf
 link: GitHub | https://github.com/micro-wizard
-link: GitLab | https://gitlab.com/nspelts | web
 link: LinkedIn | https://linkedin.com/in/nathanspelts
 link: Resume (PDF) | /file/nathanSpeltsResume.pdf | web
 ---

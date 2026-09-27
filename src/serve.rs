@@ -189,6 +189,7 @@ fn content_type(path: &Path) -> &'static str {
         "woff2" => "font/woff2",
         "txt" => "text/plain; charset=utf-8",
         "pdf" => "application/pdf",
+        "glb" => "model/gltf-binary",
         _ => "application/octet-stream",
     }
 }
