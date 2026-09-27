@@ -24,9 +24,10 @@ const OUT: &str = "dist";
 const CONTENT: &str = "content";
 const TEMPLATES: &str = "templates";
 const STATIC: &str = "static";
-/// The particle-simulator submodule's ES modules, served as-is next to the
-/// page that loads them (content/pages/particles.md).
-const SIMULATOR: &str = "include/particle-simulator/src";
+/// The particles submodule's Trunk build (`trunk build --release --public-url ./`
+/// in include/particles), served at /particles/app/ and framed by
+/// content/pages/particles.md.
+const SIMULATOR: &str = "include/particles/dist";
 
 struct Post {
     slug: String,
@@ -99,9 +100,12 @@ fn build() -> io::Result<usize> {
         copy_dir(Path::new(STATIC), Path::new(OUT))?;
     }
     if Path::new(SIMULATOR).exists() {
-        copy_dir(Path::new(SIMULATOR), &Path::new(OUT).join("particles/sim"))?;
+        copy_dir(Path::new(SIMULATOR), &Path::new(OUT).join("particles/app"))?;
     } else {
-        eprintln!("warning: {SIMULATOR} missing; run `git submodule update --init`");
+        eprintln!(
+            "warning: {SIMULATOR} missing; run `git submodule update --init`, then \
+             `trunk build --release --public-url ./` in include/particles"
+        );
     }
 
     let mut pages = 0;

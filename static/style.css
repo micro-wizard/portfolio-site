@@ -448,52 +448,22 @@ footer {
 
 /* --- particle simulator ------------------------------------------------- */
 
-.sim-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 1.5rem 0 0.75rem;
-}
-.sim-controls button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.3rem 0.6rem;
-  border: 1px solid var(--faint);
+/* The simulator is its own Trunk app that fills its viewport, so it runs in
+   a frame and letterboxes itself to whatever size this box gives it. */
+.sim-stage {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin: 1.5rem 0;
+  border: 0;
   border-radius: 4px;
-  background: var(--bg-soft);
-  color: var(--fg);
-  font: inherit;
-  font-size: 0.8rem;
-  cursor: pointer;
+  background: #0a080c;
 }
-.sim-controls button:hover { border-color: var(--accent); color: var(--accent); }
-.sim-controls kbd {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--muted);
+/* At the full column width the menu shrinks to two rows, and 8:5 is the
+   2:1 world plus those rows. Narrower, it wraps onto more and needs 4:3. */
+@media (min-width: 42rem) {
+  .sim-stage { aspect-ratio: 8 / 5; }
 }
-
-/* The simulator sizes the canvas from this box and maps the pointer with
-   offsetLeft/offsetTop, so the canvas gets no CSS size, border or padding and
-   nothing around it may be positioned. */
-.sim-stage { margin: 0 0 0.75rem; line-height: 0; }
-.sim-stage canvas { display: block; border-radius: 4px; touch-action: none; cursor: crosshair; }
-.sim-stage noscript p { line-height: 1.6; }
-
-.sim-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1.5rem;
-  margin: 0 0 1.5rem;
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-.sim-stats div { display: flex; gap: 0.4rem; }
-/* The simulator still writes X/Y into these; they just stay out of sight. */
-.sim-stats [hidden] { display: none; }
-.sim-stats dd { margin: 0; color: var(--fg); }
 
 /* --- print: the front page doubles as a printable resume ----------------- */
 

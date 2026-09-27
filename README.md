@@ -12,6 +12,16 @@ cargo run -- serve 3000   # …on another port
 SITE_DRAFTS=1 cargo run -- build   # include posts marked draft: true
 ```
 
+The `/particles/` page frames a Rust/WebGPU simulator from the
+`include/particles` submodule. Build it before the site, or use `make build`
+/ `make serve`, which do both (needs `trunk` and the `wasm32-unknown-unknown`
+target):
+
+```
+git submodule update --init
+(cd include/particles && trunk build --release --public-url ./)
+```
+
 ## Layout
 
 ```
@@ -23,8 +33,7 @@ templates/*.html     {{ name }} substitution, no template language
 static/              copied verbatim to the site root (CSS lives here)
 resume/              LaTeX template, class and fonts for the PDF resume
 resume/variants/     company-tailored resumes, gitignored
-include/particle-simulator/
-                     git submodule; its src/ is served at /particles/sim/
+include/particles/   git submodule; its Trunk build is served at /particles/app/
 dist/                build output, gitignored
 ```
 

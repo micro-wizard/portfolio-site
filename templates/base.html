@@ -57,13 +57,18 @@
 </footer>
 
 <script>
+// The OS decides until the reader picks the other theme. Picking the OS's own
+// theme again drops the override, so the page follows the OS once more.
 document.getElementById("theme-toggle").addEventListener("click", function () {
   var el = document.documentElement;
-  var current = el.dataset.theme ||
-    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  var next = current === "dark" ? "light" : "dark";
-  el.dataset.theme = next;
-  try { localStorage.setItem("theme", next) } catch (e) {}
+  var system = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  var next = (el.dataset.theme || system) === "dark" ? "light" : "dark";
+  try {
+    if (next === system) localStorage.removeItem("theme");
+    else localStorage.setItem("theme", next);
+  } catch (e) {}
+  if (next === system) delete el.dataset.theme;
+  else el.dataset.theme = next;
 });
 </script>
 </body>
