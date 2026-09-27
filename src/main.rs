@@ -41,6 +41,7 @@ struct Post {
     title: String,
     date: String,
     summary: String,
+    image: String,
     tags: Vec<String>,
     body: String,
     minutes: usize,
@@ -116,9 +117,21 @@ fn build() -> io::Result<usize> {
 
     let mut pages = 0;
 
-    // A page is the rendered body wrapped in the shared shell.
-    let emit = |path: &str, title: &str, description: &str, body: &str| -> io::Result<()> {
+    // A page is the rendered body wrapped in the shared shell. `image` is the
+    // page's link-preview image (front-matter `image:`); empty falls back to
+    // site.toml's `image`, and with neither the preview has no picture.
+    let emit = |path: &str, title: &str, description: &str, image: &str, body: &str| -> io::Result<()> {
         let canonical = format!("{base_url}{}", path_to_url(path, &root));
+        let image_meta = match pick(image, cfg.get("image")) {
+            "" => String::new(),
+            image => {
+                let url = escape(&absolute_url(image, &base_url, &root));
+                format!(
+                    "<meta property=\"og:image\" content=\"{url}\">\n\
+                     <meta name=\"twitter:card\" content=\"summary_large_image\">\n"
+                )
+            }
+        };
         let page_title = if title.is_empty() || title == site_title {
             site_title.to_string()
         } else {
@@ -128,6 +141,7 @@ fn build() -> io::Result<usize> {
             ("page_title", &escape(&page_title)),
             ("description", &escape(description)),
             ("canonical", &canonical),
+            ("image_meta", &image_meta),
             ("root", &root),
             ("site_title", &escape(site_title)),
             ("author", &escape(cfg.get("author"))),
@@ -153,6 +167,7 @@ fn build() -> io::Result<usize> {
         "index.html",
         "",
         pick(doc.get("description"), cfg.get("description")),
+        doc.get("image"),
         &resume_body,
     )?;
     pages += 1;
@@ -176,6 +191,7 @@ fn build() -> io::Result<usize> {
             &format!("blog/{}/index.html", post.slug),
             &post.title,
             &post.summary,
+            &post.image,
             &body,
         )?;
         pages += 1;
@@ -205,7 +221,7 @@ fn build() -> io::Result<usize> {
         ("intro", &intro),
         ("items", &items),
     ]);
-    emit("blog/index.html", "Writing", "Posts and notes.", &list_body)?;
+    emit("blog/index.html", "Writing", "Posts and notes.", "", &list_body)?;
     pages += 1;
 
     // --- standalone pages -------------------------------------------------
@@ -218,6 +234,7 @@ fn build() -> io::Result<usize> {
             &format!("{slug}/index.html"),
             doc.get("title"),
             doc.get("description"),
+            doc.get("image"),
             &body,
         )?;
         pages += 1;
@@ -233,7 +250,7 @@ fn build() -> io::Result<usize> {
              or the <a href=\"{root}blog/\">writing index</a>.</p>"
         )),
     ]);
-    emit("404.html", "Not found", "Page not found.", &not_found)?;
+    emit("404.html", "Not found", "Page not found.", "", &not_found)?;
     pages += 1;
     // Tells GitHub Pages to serve the tree as-is instead of running Jekyll.
     write(&Path::new(OUT).join(".nojekyll"), "")?;
@@ -269,6 +286,7 @@ fn read_posts() -> io::Result<Vec<Post>> {
             title: pick(doc.get("title"), &slug_from_name).to_string(),
             date,
             summary: doc.get("summary").to_string(),
+            image: doc.get("image").to_string(),
             tags: doc.list("tags"),
             minutes: (words / 200).max(1),
             body: doc.body,
@@ -448,6 +466,17 @@ fn current_year() -> String {
 fn path_to_url(path: &str, root: &str) -> String {
     let path = path.strip_suffix("index.html").unwrap_or(path);
     format!("{root}{path}")
+}
+
+/// A front-matter image as a full URL: a site path (with or without a leading
+/// slash, relative to the site root) or an http(s) URL, which is kept as-is.
+/// Link previews are fetched off-site, so they need the origin.
+fn absolute_url(path: &str, base_url: &str, root: &str) -> String {
+    if path.starts_with("http://") || path.starts_with("https://") {
+        path.to_string()
+    } else {
+        format!("{base_url}{root}{}", path.trim_start_matches('/'))
+    }
 }
 
 fn pick<'a>(primary: &'a str, fallback: &'a str) -> &'a str {

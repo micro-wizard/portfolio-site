@@ -1,6 +1,7 @@
 ---
 title: Particle-Simulator
 description: My 2022 falling-sand sandbox, written in JavaScript and WebGL.
+image: blog/three-particle-simulators/particle-simulator.png
 ---
 
 The falling-sand sandbox I wrote in 2022 in JavaScript and WebGL, before

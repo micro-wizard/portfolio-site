@@ -10,6 +10,9 @@ base_url = "https://nathanspelts.com"
 base_path = "/"
 # Written to dist/CNAME for GitHub Pages. Leave empty to skip.
 domain   = "nathanspelts.com"
+# Link-preview image (og:image) for pages whose front matter sets no `image:`,
+# as a path under static/. Optional; without it those previews have no picture.
+# image = "file/preview.png"
 # Sits under the heading on /blog/. Optional.
 blog_intro = "Notes on the things I build."
 # Where `site resume` copies the default resume PDF, relative to static/.

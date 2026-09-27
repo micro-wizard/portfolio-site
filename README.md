@@ -61,6 +61,9 @@ Body in CommonMark. Tables, footnotes, strikethrough and task lists are on.
 
 Every front-matter field is optional except the date (filename or `date:`).
 `slug:` overrides the URL.
+`image:` is the picture in link previews (LinkedIn, Slack, …): a path under
+`static/` such as `blog/my-title/cover.png`, or a full URL. Pages take it too;
+without one, `image` in `site.toml` is used if set.
 
 **The resume** is `content/index.md`. The same file renders the front page
 and the LaTeX PDF (see [Resume PDF](#resume-pdf)). Its front matter holds the

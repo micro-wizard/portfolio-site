@@ -1,6 +1,7 @@
 ---
 title: Particles
 description: A GPU particle physics sandbox written in Rust and WebGPU.
+image: blog/three-particle-simulators/particles.png
 ---
 
 A particle physics sandbox I wrote in Rust, running on the GPU through wgpu

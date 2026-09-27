@@ -1,6 +1,7 @@
 ---
 title: Three Particle Simulators
 slug: three_particle_simulators
+image: blog/three-particle-simulators/particles.png
 summary: How a janky C++ physics project became a JavaScript falling-sand toy, and then a Rust physics engine running in WebGPU compute shaders.
 tags: rust, webgpu, graphics, simulation
 ---
