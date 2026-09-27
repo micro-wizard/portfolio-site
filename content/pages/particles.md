@@ -9,7 +9,7 @@ ice, steam, lava and obsidian each have their own physics, and heat moves
 between them, so lava cools into obsidian and water boils into steam. Pick a
 material or a heat brush in the panel and draw; <kbd>F1</kbd> hides the panel.
 
-<iframe class="sim-stage" src="app/" title="Particle simulator"></iframe>
+<iframe class="sim-stage" src="app/" title="Particle simulator" allow="fullscreen"></iframe>
 
 It needs a browser with WebGPU. The frame shows the reason if it can't start.
 
