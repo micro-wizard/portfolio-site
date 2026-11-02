@@ -1,0 +1,4 @@
+# Config for `actionlint -config-file ci/actionlint.yaml .gitea/workflows/*.yml`.
+# actionlint only finds a config by itself in a repo with .github/workflows/.
+self-hosted-runner:
+  labels: [light, heavy]

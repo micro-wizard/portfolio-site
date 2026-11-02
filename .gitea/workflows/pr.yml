@@ -1,0 +1,152 @@
+# Quality gates for every pull request: clippy, the site build, the resume
+# PDF, workflow lint, the CI helpers' tests, and an AI review, which
+# spexel-org/reviewer posts as a PR comment. The workflow and ci/ are copied
+# from spexel-org/pr-review (workflows/pr.yml), trimmed to the review's
+# helpers. Comments in ci/ naming the README, wiki pages or issue numbers
+# refer to pr-review and spexel.
+#
+# GitHub's deploy.yml stays in .github/workflows/: Gitea reads only this
+# directory once it exists, and `uses:` actions don't run here anyway.
+#
+# Runner notes (see the CI Runner wiki page):
+# - `uses:` actions fail on the claude runner, so every step is a plain `run:`.
+# - Mount persistent volumes for build caches on the runner, since there is
+#   no actions/cache.
+#
+# Trust model: every PR runs under exactly one of the two triggers.
+# - A PR from a branch here runs on pull_request, with this file from the PR
+#   head, so a change to it is tested in its own PR. Anyone who can push a
+#   branch here can read REVIEW_DISPATCH_TOKEN, the only secret; only people
+#   with write access can.
+# - A PR from a fork (how agents work: read access plus their own fork) runs
+#   on pull_request_target, with this file from the default branch, so the
+#   fork can't change what runs with the secret. checks still runs the PR's
+#   code, with a read-only token and no secrets; review never runs it.
+# Gitea also runs a fork's own copy of this file on pull_request, without
+# secrets, on whatever runner that copy names. Keeping that away from shared
+# caches is the runners' job, not this file's (docs/CI-Runner.md).
+name: PR checks
+
+on:
+  pull_request:
+  pull_request_target:
+
+# A newer push supersedes the running checks and review.
+# Per event, so a PR's skipped run under the other trigger can't cancel it.
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+env:
+  # The image's git-lfs would download LFS objects during checkout and merge,
+  # where it has no credentials, and fail. Checkouts leave pointers instead;
+  # ci/lfs-fetch.sh fetches the objects where a job needs them (#145).
+  GIT_LFS_SKIP_SMUDGE: "1"
+
+jobs:
+  checks:
+    # Branches here on pull_request, forks on pull_request_target (see the top).
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository)
+    runs-on: heavy
+    # This job runs the PR's code, and every step also gets
+    # ACTIONS_RUNTIME_TOKEN, which by default can write to the repo. Read-only
+    # permissions make both job tokens read-only. Never give this job a
+    # secret: on pull_request_target it runs a fork's code.
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    steps:
+      # Checks the PR merged into its base, so a PR that passes on its own but
+      # breaks once the base has moved on fails here. Gitea has no
+      # refs/pull/<n>/merge, so merge locally; a conflict fails the job.
+      # The tested helpers are on the default branch; download them before
+      # the empty checkout. pr-checkout.sh runs lfs-fetch.sh from beside itself.
+      - name: Checkout PR merged into base
+        env:
+          TOKEN: ${{ github.token }}
+          BASE_REF: ${{ github.base_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          API_URL: ${{ github.api_url }}
+          REPOSITORY: ${{ github.repository }}
+          REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}.git
+        run: |
+          for helper in pr-checkout.sh lfs-fetch.sh; do
+            curl -fsS --retry 2 --retry-delay 5 --retry-all-errors \
+              -H "Authorization: token $TOKEN" --get \
+              --data-urlencode "ref=$DEFAULT_BRANCH" \
+              "$API_URL/repos/$REPOSITORY/raw/ci/$helper" \
+              -o "$RUNNER_TEMP/$helper"
+          done
+          bash "$RUNNER_TEMP/pr-checkout.sh" "$REPOSITORY_URL"
+
+      # The project's own gates. The review only starts once this job
+      # succeeds. No rustfmt: the code isn't formatted to it.
+      - name: Clippy
+        run: cargo clippy --locked --all-targets -- -D warnings
+
+      # Without the simulator submodules, which it warns about and skips.
+      - name: Build the site
+        run: cargo run --locked --quiet -- build
+
+      # As job-hunt's resume workflow runs the generator, with typst.
+      - name: Typeset the resume
+        run: |
+          cargo run --locked --quiet -- resume
+          test -s resume/build/nathan_spelts_default_resume.pdf
+
+      # actionlint on every workflow, which also shellchecks their run:
+      # blocks, with pinned, checksummed downloads.
+      - name: Lint workflows
+        run: ci/lint-workflows.sh
+
+      - name: Lint workflows script test
+        run: ci/lint-workflows-test.sh
+
+      # The pipeline's helpers, against local git remotes and stub APIs.
+      - name: PR checkout script test
+        run: ci/pr-checkout-test.sh
+
+      - name: LFS fetch script test
+        run: ci/lfs-fetch-test.sh
+
+      - name: Review request test
+        run: ci/review-request-test.sh
+
+  review:
+    # A failed/skipped/cancelled checks job must not spend model tokens.
+    needs: checks
+    runs-on: light
+    # Only asks for the review: the reviewer service reviews the PR on its own
+    # runner, with the logins, and posts the comment as its bot
+    # (reviewer/README.md). This job's only secret is the dispatch token,
+    # which can start that review and read comments, but not post them.
+    permissions:
+      contents: read
+    timeout-minutes: 25
+    outputs:
+      blocking: ${{ steps.review.outputs.blocking }}
+      findings: ${{ steps.review.outputs.findings }}
+    steps:
+      - name: Ask the reviewer service and wait
+        id: review
+        env:
+          TOKEN: ${{ secrets.REVIEW_DISPATCH_TOKEN }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          REVIEWER_API: ${{ github.api_url }}/repos/${{ vars.REVIEWER_REPO || 'spexel-org/reviewer' }}
+          API: ${{ github.api_url }}/repos/${{ github.repository }}
+          REPOSITORY: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REVIEW_BOT_LOGIN: ${{ vars.REVIEW_BOT_LOGIN }}
+        run: |
+          # The tested helper is on the default branch, never a PR copy.
+          # Downloaded with the dispatch token: a fork PR's job token can get
+          # a 404 here.
+          curl -fsS --retry 2 --retry-delay 5 --retry-all-errors \
+            -H "Authorization: token $TOKEN" --get \
+            --data-urlencode "ref=$DEFAULT_BRANCH" \
+            "$API/raw/ci/review-request.sh" -o "$RUNNER_TEMP/review-request.sh"
+          bash "$RUNNER_TEMP/review-request.sh"
