@@ -109,3 +109,19 @@
   set par(..lines(body-size, body-lead), justify: true)
   doc
 }
+
+// The cover letter: the resume's name and contact details over plain
+// paragraphs, a blank line apart and ragged right, the way a letter is set.
+#let letter(author: "", title: "", doc) = {
+  set document(author: author, title: title)
+  set page(
+    paper: "us-letter",
+    margin: (left: 1in, right: 1in, top: 0.60in, bottom: 1in),
+  )
+  set text(font: "Tinos", size: body-size, hyphenate: false)
+  set par(leading: body-gap, spacing: body-gap + body-lead)
+  doc
+}
+
+// The day it was typeset, at the head of the letter.
+#let dateline = par(datetime.today().display("[month repr:long] [day padding:none], [year]"))

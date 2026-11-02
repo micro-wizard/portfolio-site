@@ -2,9 +2,11 @@ target/
 dist/
 .DS_Store
 
-# Resume: typst output, and the company-tailored variants, which stay local.
+# Resume: typst output, and the company-tailored variants and cover letters,
+# which stay local.
 resume/build/
 resume/variants/
+resume/letters/
 # Data for the old Python generator, kept locally for reference.
 resume/json/
 

@@ -4,6 +4,8 @@
 //!   site serve [port]   build, then serve ./dist with rebuild-on-change
 //!   site resume [--typ] [variant ...]
 //!                       typeset the resume PDF from the same markdown
+//!   site cover-letter [--typ] [variant ...]
+//!                       typeset a cover letter under the resume's letterhead
 
 mod config;
 mod frontmatter;
@@ -72,10 +74,16 @@ fn main() {
                 fail(&e);
             }
         }
+        "cover-letter" => {
+            if let Err(e) = resume::letter_command(&args[1..]) {
+                fail(&e);
+            }
+        }
         other => {
             eprintln!(
                 "unknown command: {other}\n\
-                 usage: site [build | serve [port] | resume [--typ] [variant ...]]"
+                 usage: site [build | serve [port] | resume [--typ] [variant ...]\n\
+                 \x20           | cover-letter [--typ] [variant ...]]"
             );
             std::process::exit(2);
         }

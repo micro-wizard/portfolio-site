@@ -37,6 +37,7 @@ templates/*.html     {{ name }} substitution, no template language
 static/              copied verbatim to the site root (CSS lives here)
 resume/              LaTeX template, class and fonts for the PDF resume
 resume/variants/     company-tailored resumes, gitignored
+resume/letters/      their cover letters, gitignored
 include/particles/   git submodule; its Trunk build is served at /particles/app/
 include/particle-simulator/  git submodule, served as-is at /particle-simulator/app/
 dist/                build output, gitignored
@@ -135,6 +136,7 @@ cargo run -- resume              # content/index.md -> resume/build/, and
 cargo run -- resume garmin       # resume/variants/garmin.md
 cargo run -- resume --typ garmin # write the .typ only, skip typst
 make resume VARIANT=garmin       # same, then open the PDF
+cargo run -- cover-letter garmin # resume/letters/garmin.md -> resume/build/
 ```
 
 This needs `typst` on the path (`brew install typst`). The site build
@@ -145,6 +147,18 @@ doesn't: the published PDF is committed under `static/`, so rerun
 it imports, and `resume/Fonts/` holds the Tinos faces it sets. Company-tailored versions are
 full copies of `content/index.md` in `resume/variants/`, which is gitignored.
 PDFs are named `nathan_spelts_<variant>_resume.pdf`.
+
+A cover letter for a variant is `resume/letters/<variant>.md`, also
+gitignored: plain markdown paragraphs, from `Dear Hiring Manager,` to the
+signature, with emphasis, links and lists. Headings, code blocks and tables
+aren't set as such, only as paragraphs of their own. A URL written out in
+the text is a link in the PDF. Each line of a paragraph stays its own line, so `Sincerely,` and
+the name under it need no blank line between them. `resume/cover-letter.typ`
+sets it under the same name and contact details as the variant's resume
+(`resume/variants/<variant>.md`, or `content/index.md` for `default`), with
+the day it was typeset, as `nathan_spelts_<variant>_cover_letter.pdf`. A
+letter goes to one employer, so it ignores `public: true`: it has the phone,
+if the resume sets one, and the plain email.
 
 ## Colour scheme
 

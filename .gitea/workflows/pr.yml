@@ -87,6 +87,9 @@ jobs:
       - name: Clippy
         run: cargo clippy --locked --all-targets -- -D warnings
 
+      - name: Unit tests
+        run: cargo test --locked
+
       # Without the simulator submodules, which it warns about and skips.
       - name: Build the site
         run: cargo run --locked --quiet -- build
@@ -96,6 +99,18 @@ jobs:
         run: |
           cargo run --locked --quiet -- resume
           test -s resume/build/nathan_spelts_default_resume.pdf
+
+      # A letter under the front page's letterhead, as job-hunt's resume
+      # workflow typesets one under a variant's, with lines Typst would read
+      # as markup if they weren't escaped: a comment, a list, a heading.
+      - name: Typeset a cover letter
+        run: |
+          mkdir -p resume/letters
+          printf '%s\n' 'Dear Hiring Manager,' '' 'See https://x.y // not a comment' \
+            '2. not a list' '= not a heading' '-5 or +1' '/ not: a term' '' \
+            'Sincerely,' 'Nathan Spelts' > resume/letters/default.md
+          cargo run --locked --quiet -- cover-letter
+          test -s resume/build/nathan_spelts_default_cover_letter.pdf
 
       # actionlint on every workflow, which also shellchecks their run:
       # blocks, with pinned, checksummed downloads.

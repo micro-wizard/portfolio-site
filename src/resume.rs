@@ -22,6 +22,10 @@
 //! only appears in the PDF. A file marked `public: true` (the front page)
 //! prints no phone and spells the email out in its PDF too, since that PDF is
 //! linked from the site.
+//!
+//! A cover letter (resume/letters/<variant>.md, plain markdown paragraphs) is
+//! typeset under the same letterhead as its variant's resume, by
+//! resume/cover-letter.typ.
 
 use std::fs;
 use std::io;
@@ -36,6 +40,7 @@ use crate::template::{escape, Template};
 
 const DIR: &str = "resume";
 const VARIANTS: &str = "resume/variants";
+const LETTERS: &str = "resume/letters";
 const OUT: &str = "resume/build";
 
 #[derive(Clone, Copy, PartialEq)]
@@ -206,21 +211,38 @@ impl Resume {
             ("author", &typst_string(doc.get("name"))),
             ("title", &typst_string(doc.get("pdf_title"))),
             ("name", &typst(doc.get("name"), INLINE)),
-            ("subtitle", &self.typst_subtitle(website)),
+            ("subtitle", &self.typst_subtitle(website, self.public)),
             ("body", &body),
         ])
     }
 
+    /// A complete .typ document for resume/cover-letter.typ: `letter`, in
+    /// markdown, under this resume's name and contact details. Those are
+    /// never the public ones: a letter goes to one employer, not the site.
+    pub fn typst_letter(&self, template: &Template, website: &str, letter: &str) -> String {
+        let name = self.doc.get("name");
+        template.render(&[
+            ("author", &typst_string(name)),
+            ("title", &typst_string(&format!("{name}: Cover Letter"))),
+            ("name", &typst(name, INLINE)),
+            ("subtitle", &self.typst_subtitle(website, false)),
+            // A letter's lines are its own: `Sincerely,` and the name under
+            // it stay on two lines without a blank one between them.
+            ("body", &typst_with(letter, BULLETS, "\\\n")),
+        ])
+    }
+
     /// Phone · email · location, then the remaining links on their own line.
-    fn typst_subtitle(&self, website: &str) -> String {
+    /// `public` leaves the phone out and spells the email out.
+    fn typst_subtitle(&self, website: &str, public: bool) -> String {
         const SEP: &str = " #sub-sep ";
         let pdf_links: Vec<&Link> = self.links.iter().filter(|l| l.only.pdf()).collect();
         let mut first = Vec::new();
         let phone = self.doc.get("phone");
-        if !phone.is_empty() && !self.public {
+        if !phone.is_empty() && !public {
             first.push(typst(phone, INLINE));
         }
-        if self.public && !self.email.is_empty() {
+        if public && !self.email.is_empty() {
             first.push(typst(&spell_email(&self.email), INLINE));
         } else if !self.email.is_empty() {
             let email = &self.email;
@@ -462,47 +484,128 @@ const BULLETS: Wrap = ("#sub-bullet[", "]\n");
 /// Markdown to Typst markup. List items are wrapped in `item`; nested lists
 /// flatten, and inline HTML is dropped.
 fn typst(src: &str, item: Wrap) -> String {
+    typst_with(src, item, "\n")
+}
+
+/// As `typst`, with a line break within a paragraph written as `soft`.
+fn typst_with(src: &str, item: Wrap, soft: &str) -> String {
     let mut out = String::new();
     let mut in_item = 0;
+    let mut in_code = false;
+    // In a URL written out in the text, which may go on in the next chunk.
+    let mut url = false;
     for event in Parser::new_ext(src, crate::markdown_options()) {
+        if !matches!(event, Event::Text(_) | Event::Code(_)) {
+            url = false;
+        }
         match event {
             Event::Start(Tag::Item) => {
                 in_item += 1;
                 out.push_str(item.0);
+                out.push(OPEN);
             }
             Event::End(TagEnd::Item) => {
                 in_item -= 1;
                 out.push_str(item.1);
             }
-            Event::End(TagEnd::Paragraph) if in_item == 0 => out.push_str("\n\n"),
+            // A heading, code block or table isn't set as one, but stays a
+            // paragraph of its own: `Best regards,` underlined with `--` is
+            // a heading, not part of the name under it.
+            Event::End(TagEnd::Paragraph | TagEnd::Heading(_) | TagEnd::CodeBlock | TagEnd::Table)
+                if in_item == 0 =>
+            {
+                in_code = false;
+                out.push_str("\n\n")
+            }
+            Event::End(TagEnd::CodeBlock) => in_code = false,
+            Event::End(TagEnd::TableCell) => out.push(' '),
+            Event::End(TagEnd::TableHead | TagEnd::TableRow) => out.push_str("\\\n"),
             Event::Start(Tag::Strong) | Event::End(TagEnd::Strong) => out.push('*'),
             Event::Start(Tag::Emphasis) | Event::End(TagEnd::Emphasis) => out.push('_'),
             Event::Start(Tag::Link { dest_url, .. }) => {
-                out.push_str(&format!("#link(\"{}\")[", typst_string(&dest_url)));
+                out.push_str(&format!("#link(\"{}\")[{OPEN}", typst_string(&dest_url)));
             }
             Event::End(TagEnd::Link) => out.push(']'),
             // The class set code in the body face, and so does this.
-            Event::Text(text) | Event::Code(text) => out.push_str(&typst_escape(&text)),
-            Event::SoftBreak => out.push('\n'),
+            Event::Start(Tag::CodeBlock(_)) => in_code = true,
+            // A code block's lines stay apart, as a paragraph's do.
+            Event::Text(text) if in_code => {
+                let text = typst_escape(&text, &mut url);
+                let lines: Vec<&str> = text.trim_end_matches('\n').split('\n').collect();
+                out.push_str(&lines.join(soft));
+            }
+            Event::Text(text) | Event::Code(text) => out.push_str(&typst_escape(&text, &mut url)),
+            Event::SoftBreak => out.push_str(soft),
             Event::HardBreak => out.push_str("\\\n"),
             _ => {}
         }
     }
-    out.trim().to_string()
+    // Line by line, and from each `[` this wrote, whatever chunks the
+    // parser handed the text over in.
+    let lines: Vec<String> = out
+        .trim()
+        .split('\n')
+        .map(|line| line.split(OPEN).map(escape_line_start).collect())
+        .collect();
+    lines.join("\n")
 }
+
+/// Marks where `typst_with` opened a content block, which Typst reads like
+/// the start of a line. Text can't hold it: it's a control character.
+const OPEN: char = '\u{1}';
 
 /// Everything Typst would read as markup rather than as text. Dashes, quotes
 /// and `...` are left alone: Typst turns them into the same dashes, curly
-/// quotes and ellipses that the TeX ligatures did.
-fn typst_escape(text: &str) -> String {
+/// quotes and ellipses that the TeX ligatures did. Every `/` is escaped, as
+/// `//` and `/*` start comments, wherever the text around it came from;
+/// except in a URL written out in the text, from `http://` or `https://` to
+/// the next space, which Typst links as a whole. `url` says whether the text
+/// before this went into one.
+fn typst_escape(text: &str, url: &mut bool) -> String {
     let mut out = String::with_capacity(text.len());
-    for c in text.chars() {
-        if "\\#$*_[]<>@~`".contains(c) {
+    for (i, c) in text.char_indices() {
+        if c.is_whitespace() {
+            *url = false;
+        } else if text[i..].starts_with("http://") || text[i..].starts_with("https://") {
+            *url = true;
+        }
+        if "\\#$*_[]<>@~`".contains(c) || (c == '/' && !*url) {
             out.push('\\');
         }
         out.push(c);
     }
     out
+}
+
+/// A line of Typst output, with what Typst would read at its start as a
+/// heading or list (`= `, `== `, `- `, `+ `, `2. `, each followed by a space
+/// or the end of the line) escaped. Anything else is left alone, so that
+/// `--`, `-5` and `2.5` keep their dashes and numbers. Markdown has already
+/// taken its own lists and headings, so these are plain text, such as a
+/// letter's line that opens with a number. `typst_with` also calls it on
+/// the text that opens a bullet or a link's label. The markup it writes
+/// starts with `#`, `\`, `*`, `_` or `]`, so it's never touched.
+fn escape_line_start(line: &str) -> String {
+    // Typst reads a marker after an indent as well.
+    let text = line.trim_start();
+    let indent = &line[..line.len() - text.len()];
+    let digits = text.len() - text.trim_start_matches(|c: char| c.is_ascii_digit()).len();
+    let marker = if text.starts_with('=') {
+        text.len() - text.trim_start_matches('=').len()
+    } else if text.starts_with(['-', '+']) {
+        1
+    } else if digits > 0 && text[digits..].starts_with('.') {
+        digits + 1
+    } else {
+        return line.to_string();
+    };
+    if !text[marker..].is_empty() && !text[marker..].starts_with(char::is_whitespace) {
+        line.to_string()
+    } else if digits > 0 {
+        format!("{indent}{}\\{}", &text[..digits], &text[digits..])
+    } else {
+        format!("{indent}\\{text}")
+    }
 }
 
 /// Text inside a Typst string literal, as a URL or a document property.
@@ -515,41 +618,13 @@ fn typst_string(s: &str) -> String {
 /// content/index.md, the same file as the front page, and its PDF is copied
 /// into static/ for the site to serve.
 pub fn command(args: &[String]) -> io::Result<()> {
-    let typ_only = args.iter().any(|a| a == "--typ");
-    let mut variants: Vec<&str> = args.iter().map(String::as_str).filter(|a| !a.starts_with("--")).collect();
-    if variants.is_empty() {
-        variants.push("default");
-    }
     let cfg = Config::load("site.toml");
     let template = Template::load(DIR, "resume.typ");
-    fs::create_dir_all(OUT)?;
-
-    for variant in variants {
-        let (name, path) = locate(variant);
-        let resume = Resume::load(&path)?;
+    each_variant(args, |name, resume, typ_only| {
         let job = format!("{}_{name}_resume", slug(resume.doc.get("name")));
-        let typ = Path::new(OUT).join(format!("{job}.typ"));
-        fs::write(&typ, resume.typst(&template, &cfg.base_url()))?;
-        if typ_only {
-            println!("wrote {}", typ.display());
-            continue;
-        }
-
-        // resume/ is the root: lib.typ is imported as `/lib.typ`, and Tinos
-        // is loaded from ./Fonts rather than from the system.
-        let status = Command::new("typst")
-            .current_dir(DIR)
-            .args(["compile", "--root", ".", "--font-path", "Fonts"])
-            .arg(format!("build/{job}.typ"))
-            .arg(format!("build/{job}.pdf"))
-            .status()
-            .map_err(|e| io::Error::new(e.kind(), format!("cannot run typst: {e}")))?;
-        if !status.success() {
-            return Err(io::Error::other(format!("typst failed on {}", typ.display())));
-        }
-        let pdf = Path::new(OUT).join(format!("{job}.pdf"));
-        println!("wrote {}", pdf.display());
-
+        let Some(pdf) = write(&job, &resume.typst(&template, &cfg.base_url()), typ_only)? else {
+            return Ok(());
+        };
         let publish = cfg.get("resume_pdf");
         if name == "default" && !publish.is_empty() {
             let target = Path::new("static").join(publish);
@@ -559,8 +634,71 @@ pub fn command(args: &[String]) -> io::Result<()> {
             fs::copy(&pdf, &target)?;
             println!("copied to {}", target.display());
         }
+        Ok(())
+    })
+}
+
+/// `site cover-letter [--typ] [variant ...]`: as `site resume`, for the
+/// letter in resume/letters/<variant>.md, with the name and contact details
+/// of the variant's resume.
+pub fn letter_command(args: &[String]) -> io::Result<()> {
+    let cfg = Config::load("site.toml");
+    let template = Template::load(DIR, "cover-letter.typ");
+    each_variant(args, |name, resume, typ_only| {
+        let path = Path::new(LETTERS).join(format!("{name}.md"));
+        let letter = fs::read_to_string(&path).map_err(|e| {
+            io::Error::new(e.kind(), format!("cannot read {}: {e}", path.display()))
+        })?;
+        let job = format!("{}_{name}_cover_letter", slug(resume.doc.get("name")));
+        write(&job, &resume.typst_letter(&template, &cfg.base_url(), &letter), typ_only)?;
+        Ok(())
+    })
+}
+
+/// Loads the resume of each variant named in `args` (the default if none),
+/// and hands it to `f` with its name and whether `--typ` was given.
+fn each_variant(
+    args: &[String],
+    mut f: impl FnMut(&str, &Resume, bool) -> io::Result<()>,
+) -> io::Result<()> {
+    let typ_only = args.iter().any(|a| a == "--typ");
+    let mut variants: Vec<&str> = args.iter().map(String::as_str).filter(|a| !a.starts_with("--")).collect();
+    if variants.is_empty() {
+        variants.push("default");
+    }
+    fs::create_dir_all(OUT)?;
+    for variant in variants {
+        let (name, path) = locate(variant);
+        f(&name, &Resume::load(&path)?, typ_only)?;
     }
     Ok(())
+}
+
+/// Writes resume/build/<job>.typ and, unless `typ_only`, typesets it into
+/// the PDF beside it, whose path it returns.
+fn write(job: &str, doc: &str, typ_only: bool) -> io::Result<Option<PathBuf>> {
+    let typ = Path::new(OUT).join(format!("{job}.typ"));
+    fs::write(&typ, doc)?;
+    if typ_only {
+        println!("wrote {}", typ.display());
+        return Ok(None);
+    }
+
+    // resume/ is the root: lib.typ is imported as `/lib.typ`, and Tinos
+    // is loaded from ./Fonts rather than from the system.
+    let status = Command::new("typst")
+        .current_dir(DIR)
+        .args(["compile", "--root", ".", "--font-path", "Fonts"])
+        .arg(format!("build/{job}.typ"))
+        .arg(format!("build/{job}.pdf"))
+        .status()
+        .map_err(|e| io::Error::new(e.kind(), format!("cannot run typst: {e}")))?;
+    if !status.success() {
+        return Err(io::Error::other(format!("typst failed on {}", typ.display())));
+    }
+    let pdf = Path::new(OUT).join(format!("{job}.pdf"));
+    println!("wrote {}", pdf.display());
+    Ok(Some(pdf))
 }
 
 /// `default` is the front page; a bare name is resume/variants/<name>.md; a
@@ -587,4 +725,89 @@ fn slug(name: &str) -> String {
         .map(str::to_lowercase)
         .collect();
     if words.is_empty() { "resume".into() } else { words.join("_") }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const SRC: &str = "---\nname: Pat Doe\npublic: true\nemail: pat at doe dot net\nphone: 555 0100\n---\n";
+
+    #[test]
+    fn a_letter_keeps_its_lines_and_the_resume_joins_them() {
+        let src = "Dear Hiring Manager,\n\nSincerely,\nPat Doe\n";
+        assert_eq!(
+            typst_with(src, BULLETS, "\\\n"),
+            "Dear Hiring Manager,\n\nSincerely,\\\nPat Doe"
+        );
+        assert_eq!(typst(src, BULLETS), "Dear Hiring Manager,\n\nSincerely,\nPat Doe");
+    }
+
+    #[test]
+    fn a_line_that_looks_like_typst_markup_stays_text() {
+        // Markdown takes `- a` as its own list; in a code span it's text.
+        let src = "Sincerely,\n2. Pat\n= 3\n== 4\n`- a`\n/ c: d\n10.5 years, - not a list\n\
+                   -5 or +1\n==x";
+        assert_eq!(
+            typst_with(src, BULLETS, "\\\n"),
+            "Sincerely,\\\n2\\. Pat\\\n\\= 3\\\n\\== 4\\\n\\- a\\\n\\/ c: d\\\n\
+             10.5 years, - not a list\\\n-5 or +1\\\n==x"
+        );
+        // At the start of a bullet or a link's label, too.
+        assert_eq!(
+            typst("- `- a`\n- 2\\. b\n\n[= c](https://x)", BULLETS),
+            "#sub-bullet[\\- a]\n#sub-bullet[2\\. b]\n#link(\"https://x\")[\\= c]"
+        );
+        // Typst's own dashes stay dashes.
+        assert_eq!(escape_line_start("-- Pat"), "-- Pat");
+        assert_eq!(escape_line_start("---"), "---");
+        assert_eq!(escape_line_start("-"), "\\-");
+    }
+
+    #[test]
+    fn a_markdown_escape_doesnt_hide_a_number_from_typst() {
+        // pulldown-cmark hands `3\.` over as two chunks of text.
+        assert_eq!(typst("3\\. Pat, see https://x.y/z", INLINE), "3\\. Pat, see https://x.y/z");
+    }
+
+    #[test]
+    fn a_comment_is_escaped_but_a_url_isnt() {
+        assert_eq!(
+            typst("https://x.y/a//b // c, /* d, e/f", INLINE),
+            "https://x.y/a//b \\/\\/ c, \\/\\* d, e\\/f"
+        );
+        // Typst links only http and https; any other `//` is a comment.
+        assert_eq!(typst("ftp://a/b c, HTTPS://A", INLINE), "ftp:\\/\\/a\\/b c, HTTPS:\\/\\/A");
+        // However the parser splits the text, and a URL across the split.
+        assert_eq!(typst("C/**Rust**", INLINE), "C\\/*Rust*");
+        assert_eq!(typst("and/`/etc`", INLINE), "and\\/\\/etc");
+        assert_eq!(typst("a/\\/b", INLINE), "a\\/\\/b");
+        assert_eq!(typst("https://x.y/a\\_b/c d/e", INLINE), "https://x.y/a\\_b/c d\\/e");
+    }
+
+    #[test]
+    fn a_sign_off_underlined_as_a_heading_stays_apart_from_the_name() {
+        assert_eq!(
+            typst_with("Best regards,\n--\nPat Doe", BULLETS, "\\\n"),
+            "Best regards,\n\nPat Doe"
+        );
+        assert_eq!(typst("# Re: a job\n\nDear", INLINE), "Re: a job\n\nDear");
+        // A code block's lines stay apart, and an indented marker is text.
+        assert_eq!(
+            typst_with("```\na\n  - x\n```\n\nDear", BULLETS, "\\\n"),
+            "a\\\n  \\- x\n\nDear"
+        );
+    }
+
+    #[test]
+    fn a_letter_has_the_private_contact_details_of_a_public_resume() {
+        let resume = Resume::parse(Doc::parse(SRC));
+        let template = Template::load(DIR, "cover-letter.typ");
+        let letter = resume.typst_letter(&template, "https://x", "Hi");
+        assert!(letter.contains("555 0100"), "{letter}");
+        assert!(letter.contains("#link(\"mailto:pat@doe.net\")"), "{letter}");
+        let pdf = resume.typst_subtitle("https://x", resume.public);
+        assert!(!pdf.contains("555"), "{pdf}");
+        assert!(pdf.contains("pat at doe dot net"), "{pdf}");
+    }
 }
