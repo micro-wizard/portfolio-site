@@ -148,6 +148,19 @@ it imports, and `resume/Fonts/` holds the Tinos faces it sets. Company-tailored 
 full copies of `content/index.md` in `resume/variants/`, which is gitignored.
 PDFs are named `nathan_spelts_<variant>_resume.pdf`.
 
+A resume also records how long it runs, so job-hunt can tell Claude how much
+to cut from one that doesn't fit:
+
+```
+cd resume && typst query --root . --font-path Fonts build/nathan_spelts_default_resume.typ \
+  '<resume-fit>' --field value --one
+# {"height":702.1,"room":716.4,"lead":14.5,"pages":1}, in points
+```
+
+`height` is the resume set as one unbroken column, `room` is what a page has
+for it, and `lead` is one line of body text. When typst is installed,
+`cargo test` checks that the front page's resume fits on one page.
+
 A cover letter for a variant is `resume/letters/<variant>.md`, also
 gitignored: plain markdown paragraphs, from `Dear Hiring Manager,` to the
 signature, with emphasis, links and lists. Headings, code blocks and tables

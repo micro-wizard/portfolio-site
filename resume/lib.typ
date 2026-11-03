@@ -99,14 +99,32 @@
   v(body-gap + body-lead, weak: true)
 }
 
+#let resume-margin = (left: 0.70in, right: 0.70in, top: 0.60in, bottom: 0.45in)
+
+// How long the resume runs, for job-hunt to say how much to cut from one
+// that doesn't fit: `typst query <file> "<resume-fit>" --field value --one`.
+// `height` is the resume set as one unbroken column, `room` the height a
+// page has for it, `lead` a line of body text, all in points, and `pages`
+// the pages it typeset to. Page breaks leave a little room unused, so a
+// resume can need another page with `height` just under a multiple of
+// `room`. Placed, so it takes no room in the flow itself.
+#let fit(doc) = place(context {
+  let width = page.width - resume-margin.left - resume-margin.right
+  let room = page.height - resume-margin.top - resume-margin.bottom
+  [#metadata((
+    height: measure(block(width: width, doc)).height.pt(),
+    room: room.pt(),
+    lead: body-lead.pt(),
+    pages: counter(page).final().first(),
+  )) <resume-fit>]
+})
+
 #let resume(author: "", title: "", doc) = {
   set document(author: author, title: title)
-  set page(
-    paper: "us-letter",
-    margin: (left: 0.70in, right: 0.70in, top: 0.60in, bottom: 0.45in),
-  )
+  set page(paper: "us-letter", margin: resume-margin)
   set text(font: "Tinos", size: body-size, hyphenate: false)
   set par(..lines(body-size, body-lead), justify: true)
+  fit(doc)
   doc
 }
 

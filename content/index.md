@@ -34,7 +34,7 @@ Software Engineer II · Fairview, OR · Aug 2023 – Apr 2026
 - Wrote safety-critical embedded C firmware for a truck controller, from pallet jacks to container handlers.
 - Improved secure boot and firmware authentication to guard against tampering and unsafe OTA updates.
 - Wrote a Python CLI flashing tool on python-can used by about 25 engineers; larger transfer blocks cut 3 minutes from every flash against the OEM tool, and it flashed hex files as well as the OEM tool's zip packages.
-- Built a Rust CAN logger on my Rust driver for Vector XL devices (C FFI): it displayed, recorded and filtered live bus data, and read and wrote BLF trace files.
+- Built a Rust CAN logger on my Rust driver for Vector XL devices (C FFI), reading and writing BLF files.
 - Developed Lua applications for an in-truck smart display running embedded Linux.
 
 ### [Seasalt.AI](https://seasalt.ai)

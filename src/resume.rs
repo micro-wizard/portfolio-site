@@ -810,4 +810,56 @@ mod tests {
         assert!(!pdf.contains("555"), "{pdf}");
         assert!(pdf.contains("pat at doe dot net"), "{pdf}");
     }
+
+    /// `resume/lib.typ`'s `<resume-fit>` field `key` from `typst query`'s
+    /// JSON, which is flat.
+    fn fit_field(json: &str, key: &str) -> f64 {
+        let at = json.find(&format!("\"{key}\"")).unwrap_or_else(|| panic!("no {key}: {json}"));
+        let rest = json[at + key.len() + 2..].trim_start().trim_start_matches(':').trim_start();
+        let end = rest.find(|c: char| !(c.is_ascii_digit() || c == '.' || c == '-')).unwrap_or(rest.len());
+        rest[..end].parse().unwrap_or_else(|e| panic!("{key}: {e}: {json}"))
+    }
+
+    /// What job-hunt reads to say how much to cut: the front page's resume,
+    /// which has to fit on one page, and the same body twice, which can't.
+    /// Skipped without typst; CI has it.
+    #[test]
+    fn the_resume_says_how_long_it_runs() {
+        if Command::new("typst").arg("--version").output().is_err() {
+            eprintln!("skipped: no typst");
+            return;
+        }
+        let cfg = Config::load("site.toml");
+        let template = Template::load(DIR, "resume.typ");
+        let src = fs::read_to_string("content/index.md").unwrap();
+        let body = src.splitn(3, "---\n").nth(2).unwrap(); // after the front matter
+        let twice = format!("{src}\n{body}");
+        fs::create_dir_all(OUT).unwrap();
+        for (job, text, one_page) in [("fit_test_one", &src, true), ("fit_test_long", &twice, false)] {
+            let resume = Resume::parse(Doc::parse(text));
+            write(job, &resume.typst(&template, &cfg.base_url()), true).unwrap();
+            let out = Command::new("typst")
+                .current_dir(DIR)
+                .args(["query", "--root", ".", "--font-path", "Fonts"])
+                .arg(format!("build/{job}.typ"))
+                .args(["<resume-fit>", "--field", "value", "--one"])
+                .output()
+                .unwrap();
+            fs::remove_file(Path::new(OUT).join(format!("{job}.typ"))).unwrap();
+            let json = String::from_utf8_lossy(&out.stdout);
+            assert!(out.status.success(), "{job}: {}", String::from_utf8_lossy(&out.stderr));
+            let (height, room) = (fit_field(&json, "height"), fit_field(&json, "room"));
+            let pages = fit_field(&json, "pages");
+            // US letter, less the margins: 11in - 0.60in - 0.45in.
+            assert!((room - 716.4).abs() < 0.01, "{json}");
+            assert_eq!(fit_field(&json, "lead"), 14.5, "{json}");
+            if one_page {
+                assert_eq!(pages, 1.0, "content/index.md runs past a page: {json}");
+                assert!(height > 0.0 && height <= room, "{json}");
+            } else {
+                assert!(pages >= 2.0, "{json}");
+                assert!(height > room, "{json}");
+            }
+        }
+    }
 }
