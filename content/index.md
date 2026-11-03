@@ -33,7 +33,8 @@ Software Engineer II · Fairview, OR · Aug 2023 – Apr 2026
 
 - Wrote safety-critical embedded C firmware for a truck controller, from pallet jacks to container handlers.
 - Improved secure boot and firmware authentication to guard against tampering and unsafe OTA updates.
-- Built a Rust CAN flashing and diagnostics tool (Vector XL, C FFI) used by about 25 people; it cut 3 minutes from every flash and took plain binaries, not the commercial tool's zip and layout file.
+- Wrote a Python CLI flashing tool on python-can used by about 25 engineers; larger transfer blocks cut 3 minutes from every flash against the OEM tool, and it flashed hex files as well as the OEM tool's zip packages.
+- Built a Rust CAN logger on my Rust driver for Vector XL devices (C FFI): it displayed, recorded and filtered live bus data, and read and wrote BLF trace files.
 - Developed Lua applications for an in-truck smart display running embedded Linux.
 
 ### [Seasalt.AI](https://seasalt.ai)
@@ -56,7 +57,7 @@ Master of Science in Cybersecurity – *Cyber-Physical Systems* · Remote · Aug
 
 Bachelor of Science in Computer Science · Vancouver, WA · Graduated May 2023
 
-- GPA: 3.90 / 4.00
+- GPA: 3.89 / 4.00
 
 ## Projects
 
@@ -79,7 +80,7 @@ A GPU particle physics sandbox in Rust, running on WebGPU through wgpu. Try it o
 
 Designed and developed a CAN logger application using the Rust programming language.
 
-- Displayed live and recorded CAN traffic for real-time debugging and post-analysis.
+- Displayed, filtered and recorded live CAN traffic for real-time debugging and post-analysis.
 - Reverse engineered the .blf file format to enable reading and writing industry-standard CAN log files.
 - Optimized CAN data processing for high throughput using async programming and efficient Rust techniques.
 
